@@ -64,9 +64,14 @@ Test Suite Roms Results
 **4-flags.ch8**: Passed
 ![4-flags-ch8.png](./Images/4-flags-ch8.png)
 
-**5-quirks.ch8**: FAILED
+**5-quirks.ch8**: SLOW Passed
 ![5-quirks-ch8.png](./Images/5-quirks-ch8.png)
 
+**6-keypad.ch8**: Failed
+![6-keypad-ch8.png](./Images/6-keypad-ch8.png)
+
+**7-beep.ch8**: Passed
+![7-beep-ch8.png](./Images/7-beep-ch8.png)
 
 ## License
 

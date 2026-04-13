@@ -48,11 +48,15 @@ void CH8Emu::reset() {
     DT = 0;
     ST = 0;
     drawFlag = true;
+    beepFlag = false;
+    soundFlag = false;
+    isWaitingKey = false;
+    waitingKeyTarget = 0;
 }
 
 bool CH8Emu::loadROM(const uint8_t* data, uint32_t size) {
     if (!data || size == 0) {
-        SDL_Log("Failed to load ROM: invalid data");
+        SDL_Log("ERROR: Invalid rom data");
         return false;
     }
 
@@ -62,7 +66,6 @@ bool CH8Emu::loadROM(const uint8_t* data, uint32_t size) {
     }
 
     std::memcpy(&memory[0x200], data, size);
-    SDL_Log("Loaded ROM: %u bytes", size);
     return true;
 }
 
@@ -70,11 +73,21 @@ void CH8Emu::setKey(uint8_t key, bool pressed) {
     if (key < KEYS) {
         keys[key] = pressed ? 1 : 0;
     }
+    if (pressed && isWaitingKey && key == waitingKeyTarget) {
+        V[waitingKeyTarget] = key;
+        isWaitingKey = false;
+    }
 }
 
 void CH8Emu::timersTick() {
-    if (DT > 0) DT--;
-    if (ST > 0) ST--;
+    if (DT > 0) {
+        DT--;
+        if (DT == 0) beepFlag = true;
+    }
+    if (ST > 0) {
+        ST--;
+        if (ST == 0) soundFlag = true;
+    }
 }
 
 void CH8Emu::op_JP_ADDR(uint16_t addr) {
@@ -113,14 +126,17 @@ void CH8Emu::op_LD_VX_VY(uint8_t x, uint8_t y) {
 
 void CH8Emu::op_OR_VX_VY(uint8_t x, uint8_t y) {
     V[x] |= V[y];
+    V[0xF] = 0;
 }
 
 void CH8Emu::op_AND_VX_VY(uint8_t x, uint8_t y) {
     V[x] &= V[y];
+    V[0xF] = 0;
 }
 
 void CH8Emu::op_XOR_VX_VY(uint8_t x, uint8_t y) {
     V[x] ^= V[y];
+    V[0xF] = 0;
 }
 
 void CH8Emu::op_ADD_VX_VY(uint8_t x, uint8_t y) {
@@ -140,16 +156,18 @@ void CH8Emu::op_SUB_VX_VY(uint8_t x, uint8_t y, bool reverse) {
     }
 }
 
-void CH8Emu::op_SHR_VX(uint8_t x) {
-    uint8_t old = V[x];
-    V[x] >>= 1;
-    V[0xF] = old & 1;
+void CH8Emu::op_SHR_VX(uint8_t x, uint8_t y) {
+    uint8_t vy_old = V[y];
+    V[x] = V[y];
+    V[x] = V[x] >> 1;
+    V[0xF] = vy_old & 1;
 }
 
-void CH8Emu::op_SHL_VX(uint8_t x) {
-    uint8_t old = V[x];
-    V[x] <<= 1;
-    V[0xF] = (old >> 7) & 1;
+void CH8Emu::op_SHL_VX(uint8_t x, uint8_t y) {
+    uint8_t vy_old = V[y];
+    V[x] = V[y];
+    V[x] = V[x] << 1;
+    V[0xF] = (vy_old >> 7) & 1;
 }
 
 void CH8Emu::op_SNE_VX_VY(uint8_t x, uint8_t y) {
@@ -169,20 +187,28 @@ void CH8Emu::op_RND_VX_BYTE(uint8_t x, uint8_t byte) {
 }
 
 void CH8Emu::op_DRAW_VX_VY_NIBBLE(uint8_t x, uint8_t y, uint8_t n) {
-    uint8_t px = V[x] % DISPLAY_WIDTH;
-    uint8_t py = V[y] % DISPLAY_HEIGHT;
+    uint8_t px = V[x];
+    uint8_t py = V[y];
+    
+    bool wrapping = (px > 63 || py > 31);
     bool collision = false;
 
     for (uint8_t i = 0; i < n; i++) {
-        uint8_t SPrite = memory[I + i];
+        uint8_t sprite = memory[I + i];
         for (uint8_t j = 0; j < 8; j++) {
-            if ((SPrite >> (7 - j)) & 1) {
+            if ((sprite >> (7 - j)) & 1) {
                 uint8_t dx = px + j;
                 uint8_t dy = py + i;
-                if (dx < DISPLAY_WIDTH && dy < DISPLAY_HEIGHT) {
-                    if (display[dy][dx]) collision = true;
-                    display[dy][dx] ^= 1;
+                
+                if (wrapping) {
+                    dx = dx % DISPLAY_WIDTH;
+                    dy = dy % DISPLAY_HEIGHT;
+                } else {
+                    if (dx >= DISPLAY_WIDTH || dy >= DISPLAY_HEIGHT) continue;
                 }
+                
+                if (display[dy][dx]) collision = true;
+                display[dy][dx] ^= 1;
             }
         }
     }
@@ -203,7 +229,8 @@ void CH8Emu::op_LD_VX_DT(uint8_t x) {
 }
 
 void CH8Emu::op_LD_VX_K(uint8_t x) {
-    (void)x;
+    isWaitingKey = true;
+    waitingKeyTarget = x;
 }
 
 void CH8Emu::op_LD_DT_VX(uint8_t x) {
@@ -231,18 +258,21 @@ void CH8Emu::op_LD_B_VX(uint8_t x) {
 
 void CH8Emu::op_LD_I_VX(uint8_t x) {
     for (uint8_t i = 0; i <= x; i++) {
-        memory[I + i] = V[i];
+        memory[I] = V[i];
+        I += 1;
     }
 }
 
 void CH8Emu::op_LD_VX_I(uint8_t x) {
     for (uint8_t i = 0; i <= x; i++) {
-        V[i] = memory[I + i];
+        V[i] = memory[I];
+        I += 1;
     }
 }
 
 void CH8Emu::step() {
     if (PC >= MEMORY_SIZE) return;
+    if (isWaitingKey) return;
 
     uint16_t op = (memory[PC] << 8) | memory[PC + 1];
     PC += 2;
@@ -277,9 +307,9 @@ void CH8Emu::step() {
                 case 0x3: op_XOR_VX_VY(x, y); break;
                 case 0x4: op_ADD_VX_VY(x, y); break;
                 case 0x5: op_SUB_VX_VY(x, y, false); break;
-                case 0x6: op_SHR_VX(x); break;
+                case 0x6: op_SHR_VX(x, y); break;
                 case 0x7: op_SUB_VX_VY(x, y, true); break;
-                case 0xE: op_SHL_VX(x); break;
+                case 0xE: op_SHL_VX(x, y); break;
             }
             break;
         case 0x9: op_SNE_VX_VY(x, y); break;

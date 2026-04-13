@@ -35,6 +35,10 @@ public:
     uint8_t DT;
     uint8_t ST;
     bool drawFlag;
+    bool beepFlag;
+    bool soundFlag;
+    bool isWaitingKey;
+    uint8_t waitingKeyTarget;
 
 private:
     static const uint8_t font[80];
@@ -52,8 +56,8 @@ private:
     void op_XOR_VX_VY(uint8_t vx, uint8_t vy);
     void op_ADD_VX_VY(uint8_t vx, uint8_t vy);
     void op_SUB_VX_VY(uint8_t vx, uint8_t vy, bool reverse = false);
-    void op_SHR_VX(uint8_t vx);
-    void op_SHL_VX(uint8_t vx);
+    void op_SHR_VX(uint8_t vx, uint8_t vy);
+    void op_SHL_VX(uint8_t vx, uint8_t vy);
     void op_SNE_VX_VY(uint8_t vx, uint8_t vy);
     void op_LD_I_ADDR(uint16_t addr);
     void op_JP_V0_ADDR(uint16_t addr);

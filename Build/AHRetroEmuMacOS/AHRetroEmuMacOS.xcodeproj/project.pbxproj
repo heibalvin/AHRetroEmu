@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		39C7B2E92F8BB5A400D035B6 /* hello.c in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E62F8BB5A400D035B6 /* hello.c */; };
-		39C7B2EA2F8BB5A400D035B6 /* hello-callbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E72F8BB5A400D035B6 /* hello-callbacks.c */; };
 		39C7B2EB2F8BB5A400D035B6 /* ch8-emu-main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E52F8BB5A400D035B6 /* ch8-emu-main.cpp */; };
 		39C7B2EC2F8BB5A400D035B6 /* ch8-emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E42F8BB5A400D035B6 /* ch8-emu.cpp */; };
 		39C7B2F62F8BB5B400D035B6 /* 6-keypad.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2F22F8BB5B400D035B6 /* 6-keypad.ch8 */; };
@@ -20,6 +18,8 @@
 		39C7B2FC2F8BB5B400D035B6 /* 5-quirks.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2F12F8BB5B400D035B6 /* 5-quirks.ch8 */; };
 		39C7B2FE2F8BB5C500D035B6 /* SDL3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39C7B2E22F8BB59400D035B6 /* SDL3.framework */; };
 		39C7B2FF2F8BB5C500D035B6 /* SDL3.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39C7B2E22F8BB59400D035B6 /* SDL3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		39E0E6F72F8D151A00056813 /* buzz.wav in Resources */ = {isa = PBXBuildFile; fileRef = 39E0E6F62F8D151A00056813 /* buzz.wav */; };
+		39E0E6F82F8D151A00056813 /* beep.wav in Resources */ = {isa = PBXBuildFile; fileRef = 39E0E6F52F8D151A00056813 /* beep.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,8 +52,6 @@
 		39C7B2E32F8BB5A400D035B6 /* ch8-emu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ch8-emu.h"; sourceTree = "<group>"; };
 		39C7B2E42F8BB5A400D035B6 /* ch8-emu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "ch8-emu.cpp"; sourceTree = "<group>"; };
 		39C7B2E52F8BB5A400D035B6 /* ch8-emu-main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "ch8-emu-main.cpp"; sourceTree = "<group>"; };
-		39C7B2E62F8BB5A400D035B6 /* hello.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hello.c; sourceTree = "<group>"; };
-		39C7B2E72F8BB5A400D035B6 /* hello-callbacks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "hello-callbacks.c"; sourceTree = "<group>"; };
 		39C7B2ED2F8BB5B400D035B6 /* 1-chip8-logo.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "1-chip8-logo.ch8"; sourceTree = "<group>"; };
 		39C7B2EE2F8BB5B400D035B6 /* 2-ibm-logo.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "2-ibm-logo.ch8"; sourceTree = "<group>"; };
 		39C7B2EF2F8BB5B400D035B6 /* 3-corax+.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "3-corax+.ch8"; sourceTree = "<group>"; };
@@ -61,6 +59,8 @@
 		39C7B2F12F8BB5B400D035B6 /* 5-quirks.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "5-quirks.ch8"; sourceTree = "<group>"; };
 		39C7B2F22F8BB5B400D035B6 /* 6-keypad.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "6-keypad.ch8"; sourceTree = "<group>"; };
 		39C7B2F32F8BB5B400D035B6 /* 7-beep.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "7-beep.ch8"; sourceTree = "<group>"; };
+		39E0E6F52F8D151A00056813 /* beep.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = beep.wav; sourceTree = "<group>"; };
+		39E0E6F62F8D151A00056813 /* buzz.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = buzz.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -125,6 +125,8 @@
 		39C7B2F42F8BB5B400D035B6 /* Chip8 */ = {
 			isa = PBXGroup;
 			children = (
+				39E0E6F52F8D151A00056813 /* beep.wav */,
+				39E0E6F62F8D151A00056813 /* buzz.wav */,
 				39C7B2ED2F8BB5B400D035B6 /* 1-chip8-logo.ch8 */,
 				39C7B2EE2F8BB5B400D035B6 /* 2-ibm-logo.ch8 */,
 				39C7B2EF2F8BB5B400D035B6 /* 3-corax+.ch8 */,
@@ -232,6 +234,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39E0E6F72F8D151A00056813 /* buzz.wav in Resources */,
+				39E0E6F82F8D151A00056813 /* beep.wav in Resources */,
 				39C7B2F62F8BB5B400D035B6 /* 6-keypad.ch8 in Resources */,
 				39C7B2F72F8BB5B400D035B6 /* 2-ibm-logo.ch8 in Resources */,
 				39C7B2F82F8BB5B400D035B6 /* 4-flags.ch8 in Resources */,

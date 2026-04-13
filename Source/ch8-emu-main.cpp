@@ -8,41 +8,57 @@
 #define SCREEN_WIDTH (CH8Emu::DISPLAY_WIDTH * SCALE)
 #define SCREEN_HEIGHT (CH8Emu::DISPLAY_HEIGHT * SCALE)
 
-static const uint8_t keymap[CH8Emu::KEYS] = {
-    SDLK_1, SDLK_2, SDLK_3, SDLK_4,
-    SDLK_Q, SDLK_W, SDLK_E, SDLK_R,
-    SDLK_A, SDLK_S, SDLK_D, SDLK_F,
-    SDLK_Z, SDLK_X, SDLK_C, SDLK_V
+static const SDL_Scancode keymap[CH8Emu::KEYS] = {
+    SDL_SCANCODE_X,          // 0 (row 4, col 2)
+    SDL_SCANCODE_1,          // 1 (row 1, col 1)
+    SDL_SCANCODE_2,          // 2 (row 1, col 2)
+    SDL_SCANCODE_3,          // 3 (row 1, col 3)
+    SDL_SCANCODE_Q,          // 4 (row 2, col 1)
+    SDL_SCANCODE_W,          // 5 (row 2, col 2)
+    SDL_SCANCODE_E,          // 6 (row 2, col 3)
+    SDL_SCANCODE_A,          // 7 (row 3, col 1)
+    SDL_SCANCODE_S,          // 8 (row 3, col 2)
+    SDL_SCANCODE_D,          // 9 (row 3, col 3)
+    SDL_SCANCODE_Z,          // A (row 4, col 1)
+    SDL_SCANCODE_C,          // B (row 4, col 3)
+    SDL_SCANCODE_4,          // C (row 1, col 4)
+    SDL_SCANCODE_R,          // D (row 2, col 4)
+    SDL_SCANCODE_F,          // E (row 3, col 4)
+    SDL_SCANCODE_V           // F (row 4, col 4)
 };
 
 static const char* test_roms[7] = { "1-chip8-logo.ch8", "2-ibm-logo.ch8",  "3-corax+.ch8", "4-flags.ch8", "5-quirks.ch8", "6-keypad.ch8", "7-beep.ch8" };
 static const char* default_rom = test_roms[5];
 
-static uint8_t sdlKeymap(SDL_Keycode key) {
+static uint8_t sdlKeymap(SDL_Scancode scancode) {
     for (uint8_t i = 0; i < CH8Emu::KEYS; i++) {
-        if (keymap[i] == key) return i;
+        if (keymap[i] == scancode) return i;
     }
     return 0xFF;
 }
 
-static char resourcePath[512];
+static char resourceBase[512];
 
-const char* getResourcePath(const char* filename) {
+void initResourceBase() {
     const char* base_path = SDL_GetBasePath();
-    
     if (base_path) {
         char* res = SDL_strstr(base_path, "Resources");
         if (res) {
-            SDL_strlcpy(resourcePath, base_path, sizeof(resourcePath));
+            SDL_strlcpy(resourceBase, base_path, sizeof(resourceBase));
         } else {
-            SDL_strlcpy(resourcePath, base_path, sizeof(resourcePath));
-            SDL_strlcat(resourcePath, "../Resources/", sizeof(resourcePath));
+            SDL_strlcpy(resourceBase, base_path, sizeof(resourceBase));
+            SDL_strlcat(resourceBase, "../Resources/", sizeof(resourceBase));
+            SDL_strlcat(resourceBase, "/", sizeof(resourceBase));
         }
-        SDL_strlcat(resourcePath, filename, sizeof(resourcePath));
         SDL_free((void*)base_path);
-        return resourcePath;
     }
-    return "";
+}
+
+const char* getResourcePath(const char* filename) {
+    static char resourcePath[512];
+    SDL_strlcpy(resourcePath, resourceBase, sizeof(resourcePath));
+    SDL_strlcat(resourcePath, filename, sizeof(resourcePath));
+    return resourcePath;
 }
 
 int main(int argc, char* argv[]) {
@@ -50,6 +66,8 @@ int main(int argc, char* argv[]) {
         SDL_Log("SDL_Init failed: %s", SDL_GetError());
         return 1;
     }
+
+    initResourceBase();
 
     SDL_Window* window = SDL_CreateWindow("CH8 Emulator", SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if (!window) {
@@ -66,6 +84,42 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    if (!(SDL_Init(SDL_INIT_AUDIO))) {
+        SDL_Log("Audio init failed: %s", SDL_GetError());
+    }
+
+    SDL_AudioSpec beepSpec;
+    Uint32 beepLength = 0;
+    Uint8* beepBuffer = nullptr;
+    const char* beepPath = getResourcePath("beep.wav");
+    if (SDL_LoadWAV(beepPath, &beepSpec, &beepBuffer, &beepLength)) {
+        SDL_Log("Loaded beep: %u bytes, freq=%d, format=%d, channels=%d", 
+            beepLength, beepSpec.freq, beepSpec.format, beepSpec.channels);
+    } else {
+        SDL_Log("Failed to load beep: %s", beepPath);
+    }
+
+    SDL_AudioSpec buzzSpec;
+    Uint32 buzzLength = 0;
+    Uint8* buzzBuffer = nullptr;
+    const char* buzzPath = getResourcePath("buzz.wav");
+    if (SDL_LoadWAV(buzzPath, &buzzSpec, &buzzBuffer, &buzzLength)) {
+        SDL_Log("Loaded buzz: %u bytes, freq=%d, format=%d, channels=%d", 
+            buzzLength, buzzSpec.freq, buzzSpec.format, buzzSpec.channels);
+    } else {
+        SDL_Log("Failed to load buzz: %s", buzzPath);
+    }
+
+    SDL_AudioStream* audioStream = nullptr;
+    if (beepBuffer || buzzBuffer) {
+        audioStream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &beepSpec, NULL, NULL);
+        if (!audioStream) {
+            SDL_Log("Failed to open audio stream: %s", SDL_GetError());
+        } else {
+            SDL_ResumeAudioStreamDevice(audioStream);
+        }
+    }
+
     CH8Emu emu;
     emu.init();
 
@@ -80,12 +134,14 @@ int main(int argc, char* argv[]) {
     if (romData && dataSize > 0) {
         emu.loadROM(static_cast<uint8_t*>(romData), static_cast<uint32_t>(dataSize));
         SDL_free(romData);
+        SDL_Log("Successfully loaded ROM: %s", romFile);
     } else {
-        SDL_Log("Error: Loading ROM from: %s", romPath);
+        SDL_Log("Failed to load ROM from: %s", romPath);
     }
 
-    Uint64 lastTick = SDL_GetTicks();
-    Uint64 timerTick = SDL_GetTicks();
+    Uint64 lastFrameTick = SDL_GetTicks();
+    static constexpr int CPU_STEPS_PER_FRAME = 1;
+    static constexpr int FRAME_MS = 17;
 
     SDL_Event event;
     bool quit = false;
@@ -96,17 +152,17 @@ int main(int argc, char* argv[]) {
                     quit = true;
                     break;
                 case SDL_EVENT_KEY_DOWN: {
-                    uint8_t key = sdlKeymap(event.key.key);
+                    uint8_t key = sdlKeymap(event.key.scancode);
                     if (key < CH8Emu::KEYS) {
                         emu.setKey(key, true);
                     }
-                    if (event.key.key == SDLK_ESCAPE) {
+                    if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
                         quit = true;
                     }
                     break;
                 }
                 case SDL_EVENT_KEY_UP: {
-                    uint8_t key = sdlKeymap(event.key.key);
+                    uint8_t key = sdlKeymap(event.key.scancode);
                     if (key < CH8Emu::KEYS) {
                         emu.setKey(key, false);
                     }
@@ -115,37 +171,47 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        Uint64 now = SDL_GetTicks();
-        if (now - lastTick >= 16) {
+        for (int i = 0; i < CPU_STEPS_PER_FRAME; i++) {
             emu.step();
-            lastTick = now;
         }
 
-        if (now - timerTick >= 16) {
+        Uint64 now = SDL_GetTicks();
+        if (now - lastFrameTick >= FRAME_MS) {
             emu.timersTick();
-            timerTick = now;
-        }
+            if (emu.beepFlag && audioStream && beepBuffer) {
+                int shortBeep = 4410;
+                SDL_PutAudioStreamData(audioStream, beepBuffer, shortBeep);
+                emu.beepFlag = false;
+            }
+            if (emu.soundFlag && audioStream && buzzBuffer) {
+                int shortBuzz = 4410;
+                SDL_PutAudioStreamData(audioStream, buzzBuffer, shortBuzz);
+                emu.soundFlag = false;
+            }
 
-        if (emu.drawFlag) {
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            SDL_RenderClear(renderer);
+            if (emu.drawFlag) {
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderClear(renderer);
 
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-            for (int y = 0; y < CH8Emu::DISPLAY_HEIGHT; y++) {
-                for (int x = 0; x < CH8Emu::DISPLAY_WIDTH; x++) {
-                    if (emu.display[y][x]) {
-                        SDL_FRect rect = {
-                            (float)(x * SCALE),
-                            (float)(y * SCALE),
-                            (float)SCALE,
-                            (float)SCALE
-                        };
-                        SDL_RenderFillRect(renderer, &rect);
+                SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+                for (int y = 0; y < CH8Emu::DISPLAY_HEIGHT; y++) {
+                    for (int x = 0; x < CH8Emu::DISPLAY_WIDTH; x++) {
+                        if (emu.display[y][x]) {
+                            SDL_FRect rect = {
+                                (float)(x * SCALE),
+                                (float)(y * SCALE),
+                                (float)SCALE,
+                                (float)SCALE
+                            };
+                            SDL_RenderFillRect(renderer, &rect);
+                        }
                     }
                 }
+                SDL_RenderPresent(renderer);
+                emu.drawFlag = false;
             }
-            SDL_RenderPresent(renderer);
-            emu.drawFlag = false;
+
+            lastFrameTick = now;
         }
 
         SDL_Delay(1);
@@ -153,6 +219,11 @@ int main(int argc, char* argv[]) {
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    if (audioStream) {
+        SDL_DestroyAudioStream(audioStream);
+    }
+    SDL_free(beepBuffer);
+    SDL_free(buzzBuffer);
     SDL_Quit();
     return 0;
 }
