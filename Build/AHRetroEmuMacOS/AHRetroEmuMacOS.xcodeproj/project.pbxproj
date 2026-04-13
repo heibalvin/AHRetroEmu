@@ -7,16 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		39C7B2A82F8BB26900D035B6 /* hello.c in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2A52F8BB26900D035B6 /* hello.c */; };
-		39C7B2AA2F8BB26900D035B6 /* hello-callbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2A62F8BB26900D035B6 /* hello-callbacks.c */; };
-		39C7B2AC2F8BB28000D035B6 /* SDL3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39C7B2A32F8BB25A00D035B6 /* SDL3.framework */; };
-		39C7B2AD2F8BB28000D035B6 /* SDL3.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39C7B2A32F8BB25A00D035B6 /* SDL3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		39C7B2E92F8BB5A400D035B6 /* hello.c in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E62F8BB5A400D035B6 /* hello.c */; };
+		39C7B2EA2F8BB5A400D035B6 /* hello-callbacks.c in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E72F8BB5A400D035B6 /* hello-callbacks.c */; };
+		39C7B2EB2F8BB5A400D035B6 /* ch8-emu-main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E52F8BB5A400D035B6 /* ch8-emu-main.cpp */; };
+		39C7B2EC2F8BB5A400D035B6 /* ch8-emu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 39C7B2E42F8BB5A400D035B6 /* ch8-emu.cpp */; };
+		39C7B2F62F8BB5B400D035B6 /* 6-keypad.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2F22F8BB5B400D035B6 /* 6-keypad.ch8 */; };
+		39C7B2F72F8BB5B400D035B6 /* 2-ibm-logo.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2EE2F8BB5B400D035B6 /* 2-ibm-logo.ch8 */; };
+		39C7B2F82F8BB5B400D035B6 /* 4-flags.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2F02F8BB5B400D035B6 /* 4-flags.ch8 */; };
+		39C7B2F92F8BB5B400D035B6 /* 3-corax+.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2EF2F8BB5B400D035B6 /* 3-corax+.ch8 */; };
+		39C7B2FA2F8BB5B400D035B6 /* 1-chip8-logo.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2ED2F8BB5B400D035B6 /* 1-chip8-logo.ch8 */; };
+		39C7B2FB2F8BB5B400D035B6 /* 7-beep.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2F32F8BB5B400D035B6 /* 7-beep.ch8 */; };
+		39C7B2FC2F8BB5B400D035B6 /* 5-quirks.ch8 in Resources */ = {isa = PBXBuildFile; fileRef = 39C7B2F12F8BB5B400D035B6 /* 5-quirks.ch8 */; };
+		39C7B2FE2F8BB5C500D035B6 /* SDL3.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39C7B2E22F8BB59400D035B6 /* SDL3.framework */; };
+		39C7B2FF2F8BB5C500D035B6 /* SDL3.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 39C7B2E22F8BB59400D035B6 /* SDL3.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		39C7B2A22F8BB25A00D035B6 /* PBXContainerItemProxy */ = {
+		39C7B2E12F8BB59400D035B6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 39C7B29A2F8BB25A00D035B6 /* SDL.xcodeproj */;
+			containerPortal = 39C7B2D92F8BB59400D035B6 /* SDL.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = BECDF66C0761BA81005FE872;
 			remoteInfo = SDL3;
@@ -24,13 +33,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		39C7B2AE2F8BB28000D035B6 /* Embed Frameworks */ = {
+		39C7B3002F8BB5C500D035B6 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				39C7B2AD2F8BB28000D035B6 /* SDL3.framework in Embed Frameworks */,
+				39C7B2FF2F8BB5C500D035B6 /* SDL3.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -38,14 +47,24 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		39C7B2852F8BB22B00D035B6 /* AHRetroEmuMacOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AHRetroEmuMacOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		39C7B29A2F8BB25A00D035B6 /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = /Users/heibalvin/Github/heibalvin/SDL/Xcode/SDL/SDL.xcodeproj; sourceTree = "<absolute>"; };
-		39C7B2A52F8BB26900D035B6 /* hello.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hello.c; sourceTree = "<group>"; };
-		39C7B2A62F8BB26900D035B6 /* hello-callbacks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "hello-callbacks.c"; sourceTree = "<group>"; };
+		39C7B2C42F8BB58100D035B6 /* AHRetroEmuMacOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AHRetroEmuMacOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		39C7B2D92F8BB59400D035B6 /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = /Users/heibalvin/Github/heibalvin/SDL/Xcode/SDL/SDL.xcodeproj; sourceTree = "<absolute>"; };
+		39C7B2E32F8BB5A400D035B6 /* ch8-emu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ch8-emu.h"; sourceTree = "<group>"; };
+		39C7B2E42F8BB5A400D035B6 /* ch8-emu.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "ch8-emu.cpp"; sourceTree = "<group>"; };
+		39C7B2E52F8BB5A400D035B6 /* ch8-emu-main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "ch8-emu-main.cpp"; sourceTree = "<group>"; };
+		39C7B2E62F8BB5A400D035B6 /* hello.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = hello.c; sourceTree = "<group>"; };
+		39C7B2E72F8BB5A400D035B6 /* hello-callbacks.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = "hello-callbacks.c"; sourceTree = "<group>"; };
+		39C7B2ED2F8BB5B400D035B6 /* 1-chip8-logo.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "1-chip8-logo.ch8"; sourceTree = "<group>"; };
+		39C7B2EE2F8BB5B400D035B6 /* 2-ibm-logo.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "2-ibm-logo.ch8"; sourceTree = "<group>"; };
+		39C7B2EF2F8BB5B400D035B6 /* 3-corax+.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "3-corax+.ch8"; sourceTree = "<group>"; };
+		39C7B2F02F8BB5B400D035B6 /* 4-flags.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "4-flags.ch8"; sourceTree = "<group>"; };
+		39C7B2F12F8BB5B400D035B6 /* 5-quirks.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "5-quirks.ch8"; sourceTree = "<group>"; };
+		39C7B2F22F8BB5B400D035B6 /* 6-keypad.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "6-keypad.ch8"; sourceTree = "<group>"; };
+		39C7B2F32F8BB5B400D035B6 /* 7-beep.ch8 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "7-beep.ch8"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		39C7B2872F8BB22B00D035B6 /* AHRetroEmuMacOS */ = {
+		39C7B2C62F8BB58100D035B6 /* AHRetroEmuMacOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = AHRetroEmuMacOS;
 			sourceTree = "<group>";
@@ -53,55 +72,80 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		39C7B2822F8BB22B00D035B6 /* Frameworks */ = {
+		39C7B2C12F8BB58100D035B6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				39C7B2AC2F8BB28000D035B6 /* SDL3.framework in Frameworks */,
+				39C7B2FE2F8BB5C500D035B6 /* SDL3.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		39C7B27C2F8BB22B00D035B6 = {
+		39C7B2BB2F8BB58100D035B6 = {
 			isa = PBXGroup;
 			children = (
-				39C7B2A72F8BB26900D035B6 /* Source */,
-				39C7B29A2F8BB25A00D035B6 /* SDL.xcodeproj */,
-				39C7B2872F8BB22B00D035B6 /* AHRetroEmuMacOS */,
-				39C7B2AB2F8BB28000D035B6 /* Frameworks */,
-				39C7B2862F8BB22B00D035B6 /* Products */,
+				39C7B2F52F8BB5B400D035B6 /* Resources */,
+				39C7B2E82F8BB5A400D035B6 /* Source */,
+				39C7B2D92F8BB59400D035B6 /* SDL.xcodeproj */,
+				39C7B2C62F8BB58100D035B6 /* AHRetroEmuMacOS */,
+				39C7B2FD2F8BB5C500D035B6 /* Frameworks */,
+				39C7B2C52F8BB58100D035B6 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		39C7B2862F8BB22B00D035B6 /* Products */ = {
+		39C7B2C52F8BB58100D035B6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				39C7B2852F8BB22B00D035B6 /* AHRetroEmuMacOS.app */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		39C7B29D2F8BB25A00D035B6 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				39C7B2A32F8BB25A00D035B6 /* SDL3.framework */,
+				39C7B2C42F8BB58100D035B6 /* AHRetroEmuMacOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		39C7B2A72F8BB26900D035B6 /* Source */ = {
+		39C7B2DC2F8BB59400D035B6 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				39C7B2A52F8BB26900D035B6 /* hello.c */,
-				39C7B2A62F8BB26900D035B6 /* hello-callbacks.c */,
+				39C7B2E22F8BB59400D035B6 /* SDL3.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		39C7B2E82F8BB5A400D035B6 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				39C7B2E32F8BB5A400D035B6 /* ch8-emu.h */,
+				39C7B2E42F8BB5A400D035B6 /* ch8-emu.cpp */,
+				39C7B2E52F8BB5A400D035B6 /* ch8-emu-main.cpp */,
 			);
 			name = Source;
 			path = /Users/heibalvin/Github/heibalvin/AHRetroEmu/Source;
 			sourceTree = "<absolute>";
 		};
-		39C7B2AB2F8BB28000D035B6 /* Frameworks */ = {
+		39C7B2F42F8BB5B400D035B6 /* Chip8 */ = {
+			isa = PBXGroup;
+			children = (
+				39C7B2ED2F8BB5B400D035B6 /* 1-chip8-logo.ch8 */,
+				39C7B2EE2F8BB5B400D035B6 /* 2-ibm-logo.ch8 */,
+				39C7B2EF2F8BB5B400D035B6 /* 3-corax+.ch8 */,
+				39C7B2F02F8BB5B400D035B6 /* 4-flags.ch8 */,
+				39C7B2F12F8BB5B400D035B6 /* 5-quirks.ch8 */,
+				39C7B2F22F8BB5B400D035B6 /* 6-keypad.ch8 */,
+				39C7B2F32F8BB5B400D035B6 /* 7-beep.ch8 */,
+			);
+			path = Chip8;
+			sourceTree = "<group>";
+		};
+		39C7B2F52F8BB5B400D035B6 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				39C7B2F42F8BB5B400D035B6 /* Chip8 */,
+			);
+			name = Resources;
+			path = /Users/heibalvin/Github/heibalvin/AHRetroEmu/Resources;
+			sourceTree = "<absolute>";
+		};
+		39C7B2FD2F8BB5C500D035B6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -111,102 +155,109 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		39C7B2842F8BB22B00D035B6 /* AHRetroEmuMacOS */ = {
+		39C7B2C32F8BB58100D035B6 /* AHRetroEmuMacOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 39C7B2972F8BB22C00D035B6 /* Build configuration list for PBXNativeTarget "AHRetroEmuMacOS" */;
+			buildConfigurationList = 39C7B2D62F8BB58100D035B6 /* Build configuration list for PBXNativeTarget "AHRetroEmuMacOS" */;
 			buildPhases = (
-				39C7B2812F8BB22B00D035B6 /* Sources */,
-				39C7B2822F8BB22B00D035B6 /* Frameworks */,
-				39C7B2832F8BB22B00D035B6 /* Resources */,
-				39C7B2AE2F8BB28000D035B6 /* Embed Frameworks */,
+				39C7B2C02F8BB58100D035B6 /* Sources */,
+				39C7B2C12F8BB58100D035B6 /* Frameworks */,
+				39C7B2C22F8BB58100D035B6 /* Resources */,
+				39C7B3002F8BB5C500D035B6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				39C7B2872F8BB22B00D035B6 /* AHRetroEmuMacOS */,
+				39C7B2C62F8BB58100D035B6 /* AHRetroEmuMacOS */,
 			);
 			name = AHRetroEmuMacOS;
 			packageProductDependencies = (
 			);
 			productName = AHRetroEmuMacOS;
-			productReference = 39C7B2852F8BB22B00D035B6 /* AHRetroEmuMacOS.app */;
+			productReference = 39C7B2C42F8BB58100D035B6 /* AHRetroEmuMacOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		39C7B27D2F8BB22B00D035B6 /* Project object */ = {
+		39C7B2BC2F8BB58100D035B6 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastUpgradeCheck = 2620;
 				TargetAttributes = {
-					39C7B2842F8BB22B00D035B6 = {
+					39C7B2C32F8BB58100D035B6 = {
 						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
-			buildConfigurationList = 39C7B2802F8BB22B00D035B6 /* Build configuration list for PBXProject "AHRetroEmuMacOS" */;
+			buildConfigurationList = 39C7B2BF2F8BB58100D035B6 /* Build configuration list for PBXProject "AHRetroEmuMacOS" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
 			);
-			mainGroup = 39C7B27C2F8BB22B00D035B6;
+			mainGroup = 39C7B2BB2F8BB58100D035B6;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 39C7B2862F8BB22B00D035B6 /* Products */;
+			productRefGroup = 39C7B2C52F8BB58100D035B6 /* Products */;
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 39C7B29D2F8BB25A00D035B6 /* Products */;
-					ProjectRef = 39C7B29A2F8BB25A00D035B6 /* SDL.xcodeproj */;
+					ProductGroup = 39C7B2DC2F8BB59400D035B6 /* Products */;
+					ProjectRef = 39C7B2D92F8BB59400D035B6 /* SDL.xcodeproj */;
 				},
 			);
 			projectRoot = "";
 			targets = (
-				39C7B2842F8BB22B00D035B6 /* AHRetroEmuMacOS */,
+				39C7B2C32F8BB58100D035B6 /* AHRetroEmuMacOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		39C7B2A32F8BB25A00D035B6 /* SDL3.framework */ = {
+		39C7B2E22F8BB59400D035B6 /* SDL3.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = SDL3.framework;
-			remoteRef = 39C7B2A22F8BB25A00D035B6 /* PBXContainerItemProxy */;
+			remoteRef = 39C7B2E12F8BB59400D035B6 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
-		39C7B2832F8BB22B00D035B6 /* Resources */ = {
+		39C7B2C22F8BB58100D035B6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39C7B2F62F8BB5B400D035B6 /* 6-keypad.ch8 in Resources */,
+				39C7B2F72F8BB5B400D035B6 /* 2-ibm-logo.ch8 in Resources */,
+				39C7B2F82F8BB5B400D035B6 /* 4-flags.ch8 in Resources */,
+				39C7B2F92F8BB5B400D035B6 /* 3-corax+.ch8 in Resources */,
+				39C7B2FA2F8BB5B400D035B6 /* 1-chip8-logo.ch8 in Resources */,
+				39C7B2FB2F8BB5B400D035B6 /* 7-beep.ch8 in Resources */,
+				39C7B2FC2F8BB5B400D035B6 /* 5-quirks.ch8 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		39C7B2812F8BB22B00D035B6 /* Sources */ = {
+		39C7B2C02F8BB58100D035B6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				39C7B2A82F8BB26900D035B6 /* hello.c in Sources */,
-				39C7B2AA2F8BB26900D035B6 /* hello-callbacks.c in Sources */,
+				39C7B2EB2F8BB5A400D035B6 /* ch8-emu-main.cpp in Sources */,
+				39C7B2EC2F8BB5A400D035B6 /* ch8-emu.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		39C7B2952F8BB22C00D035B6 /* Debug */ = {
+		39C7B2D42F8BB58100D035B6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -268,7 +319,7 @@
 			};
 			name = Debug;
 		};
-		39C7B2962F8BB22C00D035B6 /* Release */ = {
+		39C7B2D52F8BB58100D035B6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -323,7 +374,7 @@
 			};
 			name = Release;
 		};
-		39C7B2982F8BB22C00D035B6 /* Debug */ = {
+		39C7B2D72F8BB58100D035B6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -353,7 +404,7 @@
 			};
 			name = Debug;
 		};
-		39C7B2992F8BB22C00D035B6 /* Release */ = {
+		39C7B2D82F8BB58100D035B6 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -386,25 +437,25 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		39C7B2802F8BB22B00D035B6 /* Build configuration list for PBXProject "AHRetroEmuMacOS" */ = {
+		39C7B2BF2F8BB58100D035B6 /* Build configuration list for PBXProject "AHRetroEmuMacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				39C7B2952F8BB22C00D035B6 /* Debug */,
-				39C7B2962F8BB22C00D035B6 /* Release */,
+				39C7B2D42F8BB58100D035B6 /* Debug */,
+				39C7B2D52F8BB58100D035B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		39C7B2972F8BB22C00D035B6 /* Build configuration list for PBXNativeTarget "AHRetroEmuMacOS" */ = {
+		39C7B2D62F8BB58100D035B6 /* Build configuration list for PBXNativeTarget "AHRetroEmuMacOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				39C7B2982F8BB22C00D035B6 /* Debug */,
-				39C7B2992F8BB22C00D035B6 /* Release */,
+				39C7B2D72F8BB58100D035B6 /* Debug */,
+				39C7B2D82F8BB58100D035B6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 39C7B27D2F8BB22B00D035B6 /* Project object */;
+	rootObject = 39C7B2BC2F8BB58100D035B6 /* Project object */;
 }

@@ -14,7 +14,7 @@ AHRetroEmuMacOS is a MacOS application that provides retro gaming emulation func
 
 ## Creating Xcode Project from SDL3
 
-Follow these steps to create a new iOS Xcode project with SDL3.
+Follow these steps to create a new MacOS Xcode project with SDL3.
 [SDL Install.md](https://github.com/libsdl-org/SDL/blob/release-3.4.4/INSTALL.md)
 
 ## Using Existing Xcode Project
@@ -36,6 +36,7 @@ Then press Cmd+R to build and run.
 ```
 AHRetroEmu/
 ├── Source/              # C++ source files
+├── Resources/           # Resources folder
 ├── Build/
 │   └── AHRetroEmuMacOS/ # MacOS Xcode project
 │       └── AHRetroEmuMacOS.xcodeproj/

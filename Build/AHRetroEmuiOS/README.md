@@ -36,6 +36,7 @@ Then press Cmd+R to build and run.
 ```
 AHRetroEmu/
 ├── Source/              # C++ source files
+├── Resources/           # Resources folder
 ├── Build/
 │   └── AHRetroEmuiOS/ # iOS Xcode project
 │       └── AHRetroEmuiOS.xcodeproj/
