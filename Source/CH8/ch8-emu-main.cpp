@@ -28,7 +28,7 @@ static const SDL_Scancode keymap[CH8Emu::KEYS] = {
 };
 
 static const char* test_roms[7] = { "1-chip8-logo.ch8", "2-ibm-logo.ch8",  "3-corax+.ch8", "4-flags.ch8", "5-quirks.ch8", "6-keypad.ch8", "7-beep.ch8" };
-static const char* default_rom = test_roms[5];
+static const char* default_rom = test_roms[0];
 
 static uint8_t sdlKeymap(SDL_Scancode scancode) {
     for (uint8_t i = 0; i < CH8Emu::KEYS; i++) {
@@ -42,14 +42,8 @@ static char resourceBase[512];
 void initResourceBase() {
     const char* base_path = SDL_GetBasePath();
     if (base_path) {
-        char* res = SDL_strstr(base_path, "Resources");
-        if (res) {
-            SDL_strlcpy(resourceBase, base_path, sizeof(resourceBase));
-        } else {
-            SDL_strlcpy(resourceBase, base_path, sizeof(resourceBase));
-            SDL_strlcat(resourceBase, "../Resources/", sizeof(resourceBase));
-            SDL_strlcat(resourceBase, "/", sizeof(resourceBase));
-        }
+        SDL_strlcpy(resourceBase, base_path, sizeof(resourceBase));
+        SDL_strlcat(resourceBase, "Resources/", sizeof(resourceBase));
         SDL_free((void*)base_path);
     }
 }
@@ -140,8 +134,7 @@ int main(int argc, char* argv[]) {
     }
 
     Uint64 lastFrameTick = SDL_GetTicks();
-    static constexpr int CPU_STEPS_PER_FRAME = 1;
-    static constexpr int FRAME_MS = 17;
+    static constexpr int FRAME_MS = 17;  // ~60 Hz
 
     SDL_Event event;
     bool quit = false;
@@ -171,13 +164,15 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        for (int i = 0; i < CPU_STEPS_PER_FRAME; i++) {
-            emu.step();
-        }
-
         Uint64 now = SDL_GetTicks();
         if (now - lastFrameTick >= FRAME_MS) {
+            // Execute CPU step
+            emu.step();
+
+            // Update timers
             emu.timersTick();
+
+            // Handle audio
             if (emu.beepFlag && audioStream && beepBuffer) {
                 int shortBeep = 4410;
                 SDL_PutAudioStreamData(audioStream, beepBuffer, shortBeep);
@@ -189,6 +184,7 @@ int main(int argc, char* argv[]) {
                 emu.soundFlag = false;
             }
 
+            // Render screen
             if (emu.drawFlag) {
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
                 SDL_RenderClear(renderer);
