@@ -9,7 +9,7 @@
 CH8_NAME := AHCH8EMU
 NES_NAME := AHNESEMU
 
-CH8_SOURCE_DIR := Source/Source
+CH8_SOURCE_DIR := Source/CH8
 NES_SOURCE_DIR := Source/NES
 
 CH8_BUILD := Build/CH8
@@ -40,13 +40,14 @@ INCLUDES := $(SDL3_INCLUDES)
 LDFLAGS := $(SDL3_LDFLAGS)
 
 # ============================================================================
-# Source Files
+# Source Files - Auto-discover all .cpp files in directories
 # ============================================================================
-CH8_SOURCES := $(CH8_SOURCE_DIR)/ch8-emu.cpp $(CH8_SOURCE_DIR)/ch8-emu-main.cpp
-NES_SOURCES := $(NES_SOURCE_DIR)/ahnesemu-main.cpp
+CH8_SOURCES := $(wildcard $(CH8_SOURCE_DIR)/*.cpp)
+NES_SOURCES := $(wildcard $(NES_SOURCE_DIR)/*.cpp)
 
-CH8_OBJECTS := $(addprefix $(CH8_OBJ_DIR)/,$(notdir $(CH8_SOURCES:.cpp=.o)))
-NES_OBJECTS := $(addprefix $(NES_OBJ_DIR)/,$(notdir $(NES_SOURCES:.cpp=.o)))
+# Generate object file names from source files
+CH8_OBJECTS := $(patsubst $(CH8_SOURCE_DIR)/%.cpp,$(CH8_OBJ_DIR)/%.o,$(CH8_SOURCES))
+NES_OBJECTS := $(patsubst $(NES_SOURCE_DIR)/%.cpp,$(NES_OBJ_DIR)/%.o,$(NES_SOURCES))
 
 # ============================================================================
 # Build Targets
@@ -68,12 +69,8 @@ $(CH8_BUILD)/$(CH8_NAME): $(CH8_OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo "[SUCCESS] Chip8 build complete: $@"
 
-$(CH8_OBJ_DIR)/ch8-emu.o: $(CH8_SOURCE_DIR)/ch8-emu.cpp
-	@echo "[CXX CH8] Compiling: $<"
-	@mkdir -p $(CH8_OBJ_DIR)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
-
-$(CH8_OBJ_DIR)/ch8-emu-main.o: $(CH8_SOURCE_DIR)/ch8-emu-main.cpp
+# Generic rule to compile all Chip8 source files
+$(CH8_OBJ_DIR)/%.o: $(CH8_SOURCE_DIR)/%.cpp
 	@echo "[CXX CH8] Compiling: $<"
 	@mkdir -p $(CH8_OBJ_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@
@@ -90,7 +87,8 @@ $(NES_BUILD)/$(NES_NAME): $(NES_OBJECTS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 	@echo "[SUCCESS] NES build complete: $@"
 
-$(NES_OBJ_DIR)/ahnesemu-main.o: $(NES_SOURCE_DIR)/ahnesemu-main.cpp
+# Generic rule to compile all NES source files
+$(NES_OBJ_DIR)/%.o: $(NES_SOURCE_DIR)/%.cpp
 	@echo "[CXX NES] Compiling: $<"
 	@mkdir -p $(NES_OBJ_DIR)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $< -o $@

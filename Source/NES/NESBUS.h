@@ -1,0 +1,21 @@
+
+#pragma once
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
+#include "NESCMP.h"
+
+class NESBUS: NESCMP {
+public:
+	NESBUS(NESEMU *emu);
+	~NESBUS();
+
+	Uint8 read(Uint16 addr);
+	void write(Uint16 addr, Uint8 data);
+
+	Uint16 readLE(Uint16 addr);
+	void writeLE(Uint16 addr, Uint16 data);
+
+	Uint16 readBE(Uint16 addr);
+	void writeBE(Uint16 addr, Uint16 data);
+};
