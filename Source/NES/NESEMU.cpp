@@ -44,14 +44,11 @@ void NESEMU::reset() {
 
 void NESEMU::update() {
 	// Update implementation
-	m_cpu->update();
+	m_ppu->update();
 
-	// DEBUG: remoce below for no PPU cycles
-	/*
 	if (m_cycle_count % 3 == 0) {
-		m_ppu->update();
+		m_cpu->update();
 	}
-	*/
 	
 	m_cycle_count++;
 	// SDL_Log("NESEMU: emulator state updated, cycle count: %d", m_cycle_count);

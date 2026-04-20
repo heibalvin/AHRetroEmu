@@ -15,6 +15,7 @@ public:
 
 private:
 	friend class NESBUS;
+	friend class NESPPU;
 	int version;
 	int mapper;
 	int mirroring;
@@ -29,4 +30,5 @@ private:
 	Uint8 **chr_roms;
 
 	int active_prg_rom[2] = { 0, 0 };
+	int active_chr_rom[2] = { 0, 0 };
 };

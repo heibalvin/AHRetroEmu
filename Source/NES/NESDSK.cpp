@@ -69,4 +69,7 @@ void NESDSK::load(Uint8 *datas) {
 
 	active_prg_rom[0] = 0; // Start with the first PRG ROM bank active
 	active_prg_rom[1] = prg_rom_count > 1 ? 1 : 0; // If there's a second bank, use it; otherwise, mirror the first bank
+	
+	active_chr_rom[0] = 0; // Start with the first CHR ROM bank active
+	active_chr_rom[1] = chr_rom_count > 1 ? 1 : 0; // If there's a second bank, use it; otherwise, mirror the first bank
 }

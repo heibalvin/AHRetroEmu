@@ -11,7 +11,7 @@ Uint8 NESBUS::read(Uint16 addr) {
 	if (addr < 0x2000) {
 		return m_emu->m_cpu->memory[addr % 0x0800];
 	} else if (addr >= 0x2000 && addr < 0x4000) {
-		return m_emu->m_ppu->memory[(addr - 0x2000) % 8];
+		return m_emu->m_ppu->registers[(addr - 0x2000) % 8];
 	} else if (addr >= 0x4000 && addr < 0x4018) {
 		SDL_Log("NESBUS: Reading from APU and I/O registers at address 0x%04X", addr);
 		return 0x00;
@@ -37,7 +37,7 @@ void NESBUS::write(Uint16 addr, Uint8 data) {
 	if (addr < 0x2000) {
 		m_emu->m_cpu->memory[addr % 0x0800] = data;
 	} else if (addr >= 0x2000 && addr < 0x4000) {
-		m_emu->m_ppu->memory[(addr - 0x2000) % 8] = data;
+		m_emu->m_ppu->registers[(addr - 0x2000) % 8] = data;
 	} else if (addr >= 0x4000 && addr < 0x4018) {
 		SDL_Log("NESBUS: Writing to APU and I/O registers at address 0x%04X with data 0x%02X", addr, data);
 	} else if (addr >= 0x4018 && addr < 0x4020) {
