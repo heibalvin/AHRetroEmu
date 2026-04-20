@@ -34,6 +34,7 @@ public:
 	~NESCPU();
 
 	void poweron();
+	void poweron_easy6502();
 	void reset();
 	void update();
 
@@ -107,7 +108,7 @@ private:
 	Uint8 X;   // X Register
 	Uint8 Y;   // Y Register
 	Uint8 P;   // Processor Status
-	Uint8 *memory; // Pointer to NES 2 KB of internal memory
+	Uint8 *m_memory; // Pointer to NES 2 KB of internal memory
 	NESCPUOPCODE opcode_table[256]; // Opcode lookup table
 	NESCPUOPCODE *opcode; // Currently executing opcode
 	Uint16 nextPC; // Program Counter

@@ -13,7 +13,7 @@ public:
     void release();
 
     SDL_Event input();
-    Uint8* load(const char* filename);
+    Uint8* loadNesRom(const char* filename);
     void update();
     void refresh();
 

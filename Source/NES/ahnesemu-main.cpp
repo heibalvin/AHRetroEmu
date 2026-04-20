@@ -6,7 +6,7 @@ SDLEMUAPP *g_app = nullptr;
 
 int main(int, char*[])
 {
-    g_app = new SDLEMUAPP("AH NES Emulator", 256, 240);
+    g_app = new SDLEMUAPP("AHNESEMU", 256, 240);
     if (!g_app->isRunning()) {
         return EXIT_FAILURE;
     }
@@ -17,6 +17,7 @@ int main(int, char*[])
     // Main loop
     while (g_app->isRunning()) {
         g_app->input();
+        g_app->refresh();
 
         // DEBUG: remove below for a step by step emulation using SPACEBAR
         /*

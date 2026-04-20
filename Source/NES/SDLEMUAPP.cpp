@@ -1,8 +1,6 @@
 #include "SDLEMUAPP.h"
 
-SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height)
-	: m_window(nullptr), m_renderer(nullptr)
-{
+SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height): m_width(width), m_height(height), m_emu(nullptr), m_window(nullptr), m_renderer(nullptr), m_texture(nullptr), m_buffer(nullptr), m_isRunning(false) {
 	// 1. Initialize SDL
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDLEMUAPP: failed to initialize SDL: %s", SDL_GetError());
@@ -26,11 +24,38 @@ SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height)
         return;
     }
 
-    // Set logical presentation for 256x240 with letterbox scaling
+    // Set logical presentation with letterbox scaling
     if (!SDL_SetRenderLogicalPresentation(m_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
         SDL_Log("SDLEMUAPP: failed to get render logical presentation: %s", SDL_GetError());
+        SDL_DestroyRenderer(m_renderer);
         SDL_DestroyWindow(m_window);
         SDL_Quit();
+        return;
+    }
+
+    // Create screen texture for emulator framebuffer
+    m_texture = SDL_CreateTexture(m_renderer, SDL_PIXELFORMAT_XRGB8888, SDL_TEXTUREACCESS_STREAMING, width, height);
+    if (!m_texture) {
+        SDL_Log("SDLEMUAPP: Failed to create screen texture: %s", SDL_GetError());
+        SDL_DestroyRenderer(m_renderer);
+        SDL_DestroyWindow(m_window);
+        SDL_Quit();
+        return;
+    }
+
+    m_buffer = new Uint32[width * height];
+    if (!m_buffer) {
+        SDL_Log("SDLEMUAPP: Failed to allocate screen buffer: %s", SDL_GetError());
+        SDL_DestroyTexture(m_texture);
+        SDL_DestroyRenderer(m_renderer);
+        SDL_DestroyWindow(m_window);
+        SDL_Quit();
+        return;
+    }
+
+    // Initialize screen buffer with black
+    for (int i = 0; i < width * height; ++i) {
+        m_buffer[i] = 0xFFFF00FF;
     }
 
     m_emu = new NESEMU();
@@ -48,20 +73,33 @@ SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height)
 
 SDLEMUAPP::~SDLEMUAPP()
 {
-    delete m_emu;
-    m_emu = nullptr;
+    m_isRunning = false;
+    if (m_emu) {
+        delete m_emu;
+        m_emu = nullptr;
+    }
+    
+    if (m_buffer) {
+        delete[] m_buffer;
+        m_buffer = nullptr;
+    }
+
+    if (m_texture) {
+        SDL_DestroyTexture(m_texture);
+        m_texture = nullptr;
+    }
 
     if (m_renderer) {
         SDL_DestroyRenderer(m_renderer);
         m_renderer = nullptr;
     }
 
-	if (m_window) {
-		SDL_DestroyWindow(m_window);
-		m_window = nullptr;
-	}
+ 	if (m_window) {
+ 		SDL_DestroyWindow(m_window);
+ 		m_window = nullptr;
+ 	}
 
-	SDL_Quit();
+ 	SDL_Quit();
 }
 
 void SDLEMUAPP::input() {
@@ -154,4 +192,20 @@ void SDLEMUAPP::reset() {
 
 void SDLEMUAPP::update() {
     m_emu->update();
+}
+
+void SDLEMUAPP::refresh() {
+    if (!m_renderer || !m_texture || !m_buffer) return;
+
+    void* pixels;
+    int pitch;
+    if (SDL_LockTexture(m_texture, nullptr, &pixels, &pitch)) {
+        SDL_memcpy(pixels, m_buffer, m_width * m_height * sizeof(Uint32));
+        SDL_UnlockTexture(m_texture);
+    }
+
+    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
+    SDL_RenderClear(m_renderer);
+    SDL_RenderTexture(m_renderer, m_texture, nullptr, nullptr);
+    SDL_RenderPresent(m_renderer);
 }

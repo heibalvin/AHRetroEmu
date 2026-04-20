@@ -2,7 +2,7 @@
 #include "NESEMU.h"
 
 NESCPU::NESCPU(NESEMU *emu) : NESCMP(emu) {
-	memory = new Uint8[2 * 1024];
+	m_memory = new Uint8[2 * 1024];
 
 	// Interrupt flag opcodes
 	opcode_table[0x18] = { 0x18, "CLC", IMPLIED, 1, 2 };
@@ -213,9 +213,9 @@ NESCPU::NESCPU(NESEMU *emu) : NESCMP(emu) {
 
 NESCPU::~NESCPU() {
 	// Destructor implementation
-	if (memory) {
-		delete[] memory;
-		memory = nullptr;
+	if (m_memory) {
+		delete[] m_memory;
+		m_memory = nullptr;
 	}
 }
 
@@ -231,6 +231,21 @@ void NESCPU::poweron() {
 	nextPC = PC; // Initialize nextPC to the reset vector
 	delay_cycles = 0; // Clear delay cycles
 	isRunning = true; // Set running flag
+}
+
+void NESCPU::poweron_easy6502() {
+	A = 0x00;
+	X = 0x00;
+	Y = 0x00;
+	SP = 0xFD;
+	P = 0x24;
+	PC = 0x6000;
+	nextPC = 0x6000;
+	isRunning = true;
+	
+	for (Uint16 i = 0; i < 0x2000; i++) {
+		m_emu->m_bus->write(i, 0x00);
+	}
 }
 
 void NESCPU::reset() {

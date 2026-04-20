@@ -18,4 +18,7 @@ public:
 
 	Uint16 readBE(Uint16 addr);
 	void writeBE(Uint16 addr, Uint16 data);
+
+private:
+	Uint8 *prg_ram = nullptr;
 };

@@ -113,7 +113,7 @@ SDL_Event SDLEMU::input()
     return event;
 }
 
-Uint8* SDLEMU::load(const char* filename)
+Uint8* SDLEMU::loadNesRom(const char* filename)
 {
     return nullptr;
 }
