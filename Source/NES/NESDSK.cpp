@@ -23,8 +23,7 @@ NESDSK::~NESDSK() {
 }
 
 char* NESDSK::toJSON() {
-	// Convert to JSON implementation
-	char *json = new char[1024];
+	char *json = (char *)SDL_malloc(1024);
 	SDL_snprintf(json, 1024, "{\"version\": %d, \"mapper\": %d, \"mirroring\": %d, \"tv_system\": %d, \"prg_rom_size\": %d, \"prg_rom_count\": %d, \"chr_rom_size\": %d, \"chr_rom_count\": %d}",
 		version, mapper, mirroring, tv_system, prg_rom_size, prg_rom_count, chr_rom_size, chr_rom_count);
 
@@ -40,7 +39,7 @@ void NESDSK::load(Uint8 *datas) {
 	}
 
 	version = 1;
-	if (datas[7] & 0x0C == 0x08) {
+	if ((datas[7] & 0x0C )== 0x08) {
 		version = 2;
 	}
 	mapper = (datas[6] >> 4) | (datas[7] & 0xF0);

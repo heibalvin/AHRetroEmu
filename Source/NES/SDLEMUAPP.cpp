@@ -1,6 +1,6 @@
 #include "SDLEMUAPP.h"
 
-SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height): m_width(width), m_height(height), m_emu(nullptr), m_window(nullptr), m_renderer(nullptr), m_texture(nullptr), m_buffer(nullptr), m_isRunning(false) {
+SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height): m_width(width), m_height(height), m_emu(nullptr), m_window(nullptr), m_renderer(nullptr), m_texture(nullptr), m_isRunning(false) {
 	// 1. Initialize SDL
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         SDL_Log("SDLEMUAPP: failed to initialize SDL: %s", SDL_GetError());
@@ -43,21 +43,6 @@ SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height): m_width(width), 
         return;
     }
 
-    m_buffer = new Uint32[width * height];
-    if (!m_buffer) {
-        SDL_Log("SDLEMUAPP: Failed to allocate screen buffer: %s", SDL_GetError());
-        SDL_DestroyTexture(m_texture);
-        SDL_DestroyRenderer(m_renderer);
-        SDL_DestroyWindow(m_window);
-        SDL_Quit();
-        return;
-    }
-
-    // Initialize screen buffer with black
-    for (int i = 0; i < width * height; ++i) {
-        m_buffer[i] = 0xFFFF00FF;
-    }
-
     m_emu = new NESEMU();
     if (!m_emu) {
         SDL_Log("SDLEMUAPP: failed to create NESEMU instance");
@@ -67,6 +52,7 @@ SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height): m_width(width), 
         return;
     }
 
+    m_isStepByStep = false;
     m_isRunning = true;
     SDL_Log("SDLEMU: SDL initialized successfully");
 }
@@ -77,11 +63,6 @@ SDLEMUAPP::~SDLEMUAPP()
     if (m_emu) {
         delete m_emu;
         m_emu = nullptr;
-    }
-    
-    if (m_buffer) {
-        delete[] m_buffer;
-        m_buffer = nullptr;
     }
 
     if (m_texture) {
@@ -114,6 +95,7 @@ void SDLEMUAPP::input() {
                 switch (event.key.key) {
                     case SDLK_SPACE:
                         update();
+                        m_isStepByStep = false;
                         break;
                     case SDLK_UP:
                         SDL_Log("SDLEMUAPP: KeyBoard Up Pressed");
@@ -147,7 +129,6 @@ void SDLEMUAPP::input() {
 }
 
 void SDLEMUAPP::get_path(const char* filename, char* filepath) {
-    // Implementation for loading a file
     const char* basepath = SDL_GetBasePath();
     if (!basepath) {
         SDL_Log("SDLEMUAPP: failed to get base path: %s", SDL_GetError());
@@ -157,6 +138,7 @@ void SDLEMUAPP::get_path(const char* filename, char* filepath) {
     SDL_strlcpy(filepath, basepath, sizeof(filepath));
     SDL_strlcat(filepath, "../../Resources/ROMs/NES/", sizeof(filepath));
     SDL_strlcat(filepath, filename, sizeof(filepath));
+    SDL_free((char *)basepath);
 }
 
 void SDLEMUAPP::load(const char* filename) {
@@ -171,6 +153,7 @@ void SDLEMUAPP::load(const char* filename) {
     SDL_strlcpy(filepath, basepath, sizeof(filepath));
     SDL_strlcat(filepath, "../../Resources/ROMs/NES/", sizeof(filepath));
     SDL_strlcat(filepath, filename, sizeof(filepath));
+    SDL_free((char *)basepath);
 
     size_t filesize;
     Uint8* datas = (Uint8*)SDL_LoadFile(filepath, &filesize);
@@ -186,21 +169,20 @@ void SDLEMUAPP::poweron() {
     m_emu->poweron();
 }
 
-void SDLEMUAPP::reset() {
-    m_emu->reset();
-}
-
 void SDLEMUAPP::update() {
     m_emu->update();
+    if (m_emu->m_isRefreshReq) {
+        refresh();
+        m_emu->m_isRefreshReq = false;
+        m_isStepByStep = true;
+    }
 }
 
 void SDLEMUAPP::refresh() {
-    if (!m_renderer || !m_texture || !m_buffer) return;
-
     void* pixels;
     int pitch;
     if (SDL_LockTexture(m_texture, nullptr, &pixels, &pitch)) {
-        SDL_memcpy(pixels, m_buffer, m_width * m_height * sizeof(Uint32));
+        SDL_memcpy(pixels, m_emu->m_ppu->m_buffer, m_width * m_height * sizeof(Uint32));
         SDL_UnlockTexture(m_texture);
     }
 
@@ -208,4 +190,6 @@ void SDLEMUAPP::refresh() {
     SDL_RenderClear(m_renderer);
     SDL_RenderTexture(m_renderer, m_texture, nullptr, nullptr);
     SDL_RenderPresent(m_renderer);
+
+    SDL_Log("SDLEMUAPP: Refresh Required");
 }

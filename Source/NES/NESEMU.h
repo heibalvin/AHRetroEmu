@@ -13,15 +13,12 @@ public:
 	~NESEMU();
 
 	void poweron();
-	void reset();
 	void update();
 
 	void loadRom(Uint8* datas);
 
-	bool isRunning() { return m_running; }
-	void stop() { m_running = false; }
-
 private:
+	friend class SDLEMUAPP;
 	friend class NESBUS;
 	friend class NESCPU;
 	friend class NESPPU;
@@ -31,5 +28,5 @@ private:
 	NESCPU *m_cpu;
 	NESPPU *m_ppu;
 	int m_cycle_count = 0;
-	bool m_running = true;
+	bool m_isRefreshReq = false;
 };

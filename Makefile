@@ -138,7 +138,7 @@ run-ch8: ch8
 
 run-nes: nes
 	@echo "[RUN] Starting NES emulator..."
-	@$(NES_BUILD)/$(NES_NAME)
+	@cd $(NES_BUILD) && ./$(NES_NAME)
 
 run-all: all
 	@echo "[RUN] All emulators built!"

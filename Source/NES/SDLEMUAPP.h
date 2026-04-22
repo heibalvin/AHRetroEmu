@@ -5,6 +5,7 @@
 class SDLEMUAPP
 {
 public:
+    bool m_isStepByStep = false;
     explicit SDLEMUAPP(const char* title, int width, int height);
     ~SDLEMUAPP();
 
@@ -14,6 +15,7 @@ public:
     void poweron();
     void reset();
     void update();
+    void step();
     void refresh();
 
     void get_path(const char* filename, char* filepath);
@@ -25,6 +27,6 @@ private:
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
     SDL_Texture* m_texture;
-    Uint32* m_buffer = nullptr;
     bool m_isRunning = false;
+    
 };

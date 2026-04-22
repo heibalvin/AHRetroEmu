@@ -2,7 +2,7 @@
 #include "NESEMU.h"
 
 NESCPU::NESCPU(NESEMU *emu) : NESCMP(emu) {
-	m_memory = new Uint8[2 * 1024];
+	m_wram = (Uint8 *)SDL_malloc(2 * 1024 * sizeof(Uint8));
 
 	// Interrupt flag opcodes
 	opcode_table[0x18] = { 0x18, "CLC", IMPLIED, 1, 2 };
@@ -61,14 +61,6 @@ NESCPU::NESCPU(NESEMU *emu) : NESCMP(emu) {
 	opcode_table[0x84] = { 0x84, "STY", ZERO_PAGE, 2, 3 };
 	opcode_table[0x94] = { 0x94, "STY", ZERO_PAGE_X, 2, 4 };
 	opcode_table[0x8C] = { 0x8C, "STY", ABSOLUTE, 3, 4 };
-
-	// Transfer opcodes
-	opcode_table[0xAA] = { 0xAA, "TAX", IMPLIED, 1, 2 };
-	opcode_table[0x8A] = { 0x8A, "TXA", IMPLIED, 1, 2 };
-	opcode_table[0xA8] = { 0xA8, "TAY", IMPLIED, 1, 2 };
-	opcode_table[0x98] = { 0x98, "TYA", IMPLIED, 1, 2 };
-	opcode_table[0x9A] = { 0x9A, "TXS", IMPLIED, 1, 2 };
-	opcode_table[0xBA] = { 0xBA, "TSX", IMPLIED, 1, 2 };
 
 	// Arithmetic opcodes - ADC
 	opcode_table[0x69] = { 0x69, "ADC", IMMEDIATE, 2, 2 };
@@ -208,64 +200,168 @@ NESCPU::NESCPU(NESEMU *emu) : NESCMP(emu) {
 	opcode_table[0x24] = { 0x24, "BIT", ZERO_PAGE, 2, 3 };
 	opcode_table[0x2C] = { 0x2C, "BIT", ABSOLUTE, 3, 4 };
 
+	// Stack opcodes - PHA, PLA, PHP, PLP
+	opcode_table[0x48] = { 0x48, "PHA", IMPLIED, 1, 3 };
+	opcode_table[0x68] = { 0x68, "PLA", IMPLIED, 1, 4 };
+	opcode_table[0x08] = { 0x08, "PHP", IMPLIED, 1, 3 };
+	opcode_table[0x28] = { 0x28, "PLP", IMPLIED, 1, 4 };
+
+	// NOP
+	opcode_table[0xEA] = { 0xEA, "NOP", IMPLIED, 1, 2 };
+
+	// Undocumented NOPs
+	opcode_table[0x1A] = { 0x1A, "NOP", IMPLIED, 1, 2 };
+	opcode_table[0x3A] = { 0x3A, "NOP", IMPLIED, 1, 2 };
+	opcode_table[0x5A] = { 0x5A, "NOP", IMPLIED, 1, 2 };
+	opcode_table[0x7A] = { 0x7A, "NOP", IMPLIED, 1, 2 };
+	opcode_table[0xDA] = { 0xDA, "NOP", IMPLIED, 1, 2 };
+	opcode_table[0xFA] = { 0xFA, "NOP", IMPLIED, 1, 2 };
+
+	// INC/DEC with ZPG,X and ABS,X variants
+	opcode_table[0xD6] = { 0xD6, "DEC", ZERO_PAGE_X, 2, 6 };
+	opcode_table[0xDE] = { 0xDE, "DEC", ABSOLUTE_X, 3, 7 };
+
+	// LDA/ZPG,X
+	opcode_table[0xB5] = { 0xB5, "LDA", ZERO_PAGE_X, 2, 4 };
+
+	// STA ZPG,X
+	opcode_table[0x95] = { 0x95, "STA", ZERO_PAGE_X, 2, 4 };
+
 	opcode = nullptr;
 }
 
 NESCPU::~NESCPU() {
-	// Destructor implementation
-	if (m_memory) {
-		delete[] m_memory;
-		m_memory = nullptr;
+	if (m_wram) {
+		SDL_free(m_wram);
+		m_wram = nullptr;
 	}
+}
+
+char* NESCPU::dump() {
+	char *str = (char *)SDL_malloc(sizeof(char)*80);
+	SDL_snprintf(str, 80,
+		"A: %02X, X: %02X, Y: %02X, SP: %02X, P: %s%s%s%s%s%s%s%s, PC: %04X",
+		A, X, Y, SP, (P & 0x80) ? "N" : ".", 
+		(P & 0x40) ? "V" : ".", 
+		(P & 0x20) ? "-" : ".", 
+		(P & 0x10) ? "B" : ".", 
+		(P & 0x08) ? "D" : ".", 
+		(P & 0x04) ? "I" : ".", 
+		(P & 0x02) ? "Z" : ".", 
+		(P & 0x01) ? "C" : ".", PC);
+	return str;
+}
+
+void NESCPU::pushWord(Uint16 value) {
+	m_wram[0x0100 + SP] = (value >> 8) & 0xFF;
+	SP = (SP - 1) & 0xFF;
+	m_wram[0x0100 + SP] = value & 0xFF;
+	SP = (SP - 1) & 0xFF;
+}
+
+Uint16 NESCPU::popWord() {
+	SP = (SP + 1) & 0XFF;
+	Uint8 low = m_wram[0x0100 + SP];
+	SP = (SP + 1) & 0XFF;
+	Uint8 high = m_wram[0x0100 + SP];
+	return (high << 8) | low;
+}
+
+void NESCPU::pushByte(Uint8 value) {
+	m_wram[0x0100 + SP] = value;
+	SP = (SP - 1) & 0xFF;
+}
+
+Uint8 NESCPU::popByte() {
+	SP = (SP + 1) & 0xFF;
+	return 	m_wram[0x0100 + SP];
 }
 
 void NESCPU::poweron() {
-	// Power on implementation
-	A = 0x00;    // Clear accumulator
-	X = 0x00;    // Clear X register
-	Y = 0x00;    // Clear Y register
-	SP = 0xFD;   // Stack pointer starts at 0xFD
-	P = 0x24;    // Set default processor status (IRQ disabled)
-
-	PC = m_emu->m_bus->readLE(0xFFFC); // Reset vector will be loaded here
-	nextPC = PC; // Initialize nextPC to the reset vector
-	delay_cycles = 0; // Clear delay cycles
-	isRunning = true; // Set running flag
-}
-
-void NESCPU::poweron_easy6502() {
 	A = 0x00;
 	X = 0x00;
 	Y = 0x00;
-	SP = 0xFD;
+	SP = 0xFF;
 	P = 0x24;
-	PC = 0x6000;
-	nextPC = 0x6000;
-	isRunning = true;
-	
-	for (Uint16 i = 0; i < 0x2000; i++) {
-		m_emu->m_bus->write(i, 0x00);
-	}
+	PC = 0x0000;
+	nextPC = PC;
+	delay_cycles = 0;
+
+	m_isResetInterruptReq = true;
+
+	char *str = dump();
+	SDL_Log("NESCPU: poweron: %s", str);
+	SDL_free(str);
 }
 
-void NESCPU::reset() {
-	// Reset implementation
-	SDL_Log("NESCPU: Resetting CPU");
+void NESCPU::reset_interrupt() {
+	P = (P & 0x04) | 0x04;
+	SP = 0xFF;
+
+	pushWord(PC);
+	pushByte(P);
+
+	PC = m_emu->m_bus->readWord(0xFFFC); // Reset vector will be loaded here
+	nextPC = PC; // Initialize nextPC to the reset vector
+	delay_cycles = 0; // Clear delay cycles
+
+	m_isResetInterruptReq = false;
+
+	char *str = dump();
+	SDL_Log("NESCPU: reset interrupt: %s", str);
+	SDL_free(str);
+}
+
+void NESCPU::nmi_interrupt() {
+	P = (P & 0x04) | 0x20;
+	pushWord(PC);
+	pushByte(P);
+
+	PC = m_emu->m_bus->readWord(0xFFFA); // NMI vector will be loaded here
+	m_isNMIInterruptReq = false;
+	m_emu->m_isRefreshReq = true;
+		
+	char *str = dump();
+	SDL_Log("NESCPU: nmi interrupt: %s", str);
+	SDL_free(str);
+}
+
+void NESCPU::irq_interrupt() {
+	if ((P & 0x04) == 0) {
+		P = (P & 0x04) | 0x20;
+		pushWord(PC);
+		pushByte(P);
+
+		PC = m_emu->m_bus->readWord(0xFFFE); // IRQ vector will be loaded here
+		m_isIRQInterruptReq = false;
+
+		char *str = dump();
+		SDL_Log("NESCPU: irq interrupt: %s", str);
+		SDL_free(str);
+	}
 }
 
 void NESCPU::update() {
-	if (!isRunning) {
-		return;
+	// if (delay_cycles > 0) {
+	// 	delay_cycles --;
+	// 	SDL_Log("NESCPU: Delay Cycle");
+	// 	return;
+	// }
+
+	if (m_isResetInterruptReq) {
+		reset_interrupt();
+		m_isResetInterruptReq = false;
 	}
 
-	// DEBUG: remove below for no cycle wait.
-	/*
-	if (delay_cycles > 0) {
-		delay_cycles--;
-		// SDL_Log("NESCPU: Delaying execution, remaining cycles: %d", delay_cycles);
-		return;
+	if (m_isNMIInterruptReq) {
+		nmi_interrupt();
+		m_isNMIInterruptReq = false;
 	}
-	*/
+
+	if (m_isIRQInterruptReq) {
+		irq_interrupt();
+		m_isIRQInterruptReq = false;
+	}
 
 	fetch();
 	decode();
@@ -282,24 +378,15 @@ void NESCPU::decode() {
 	Uint8 op1 = m_emu->m_bus->read(PC + 1);
 	Uint8 op2 = m_emu->m_bus->read(PC + 2);
 	
-	char registers[80];
-	SDL_snprintf(registers, 80, "A: %02X X: %02X Y: %02X SP: %02X P: %s%s%s%s%s%s%s%s", A, X, Y, SP,
-		(P & 0x80) ? "N" : ".", 
-		(P & 0x40) ? "V" : ".", 
-		(P & 0x20) ? "-" : ".", 
-		(P & 0x10) ? "B" : ".", 
-		(P & 0x08) ? "D" : ".", 
-		(P & 0x04) ? "I" : ".", 
-		(P & 0x02) ? "Z" : ".", 
-		(P & 0x01) ? "C" : ".");
+	char *registers = dump();
 
 	char opcodes[80];
 	if (opcode->length == 1) {
-		SDL_snprintf(opcodes, 80, "%04X : %02X      ", PC, op);
+		SDL_snprintf(opcodes, 80, " : %02X      ", op);
 	} else if (opcode->length == 2) {
-		SDL_snprintf(opcodes, 80, "%04X : %02X %02X   ", PC, op, op1);
+		SDL_snprintf(opcodes, 80, " : %02X %02X   ", op, op1);
 	} else if (opcode->length == 3) {
-		SDL_snprintf(opcodes, 80, "%04X : %02X %02X %02X", PC, op, op1, op2);
+		SDL_snprintf(opcodes, 80, " : %02X %02X %02X", op, op1, op2);
 	}
 
 	char mnemonic[80];
@@ -313,13 +400,13 @@ void NESCPU::decode() {
 					SDL_snprintf(mnemonic, 80, "%s #$%02X", opcode->mnemonic, op1);
 					break;
 				case ZERO_PAGE:
-					SDL_snprintf(mnemonic, 80, "%s $%02X", opcode->mnemonic, op1);
+					SDL_snprintf(mnemonic, 80, "%s $%04X", opcode->mnemonic, op1);
 					break;
 				case ZERO_PAGE_X:
-					SDL_snprintf(mnemonic, 80, "%s $%02X, X", opcode->mnemonic, op1);
+					SDL_snprintf(mnemonic, 80, "%s $%04X, X", opcode->mnemonic, op1);
 					break;
 				case ZERO_PAGE_Y:
-					SDL_snprintf(mnemonic, 80, "%s $%02X, Y", opcode->mnemonic, op1);
+					SDL_snprintf(mnemonic, 80, "%s $%04X, Y", opcode->mnemonic, op1);
 					break;
 				case RELATIVE:
 					{
@@ -366,6 +453,7 @@ void NESCPU::decode() {
 	}
 	
 	SDL_Log("NESCPU: %s | %s | %s", registers, opcodes, mnemonic);
+	SDL_free(registers);
 }
 
 void NESCPU::execute() {
@@ -574,7 +662,6 @@ void NESCPU::execute() {
 
 		default:
 			SDL_Log("NESCPU: Unknown opcode %02X at %04X", opcode->opc, PC);
-			isRunning = false; // Stop execution on unknown opcode
 			break;
 	}
 
@@ -609,17 +696,17 @@ Uint16 NESCPU::addressingMode() {
 		case ZERO_PAGE_Y:
 			return (Uint16)(m_emu->m_bus->read(PC + 1) + Y) & 0x00FF;;
 		case ABSOLUTE:
-			return m_emu->m_bus->readLE(PC + 1);
+			return m_emu->m_bus->readWord(PC + 1);
 		case ABSOLUTE_X:
-			return m_emu->m_bus->readLE(PC + 1) + X;
+			return m_emu->m_bus->readWord(PC + 1) + X;
 		case ABSOLUTE_Y:
-			return m_emu->m_bus->readLE(PC + 1) + Y;
+			return m_emu->m_bus->readWord(PC + 1) + Y;
 		case INDIRECT:
-			return m_emu->m_bus->readLE(m_emu->m_bus->readLE(PC + 1));
+			return m_emu->m_bus->readWord(m_emu->m_bus->readWord(PC + 1));
 		case INDEXED_INDIRECT:
-			return m_emu->m_bus->readLE((m_emu->m_bus->read(PC + 1) + X) & 0xFF);
+			return m_emu->m_bus->readWord((m_emu->m_bus->read(PC + 1) + X) & 0xFF);
 		case INDIRECT_INDEXED:
-			return m_emu->m_bus->readLE(m_emu->m_bus->read(PC + 1)) + Y;
+			return m_emu->m_bus->readWord(m_emu->m_bus->read(PC + 1)) + Y;
 		case RELATIVE:
 			return PC + 2 + (int8_t)m_emu->m_bus->read(PC + 1); // Relative addressing uses signed offset
 		case ACCUMULATOR:
@@ -876,34 +963,24 @@ void NESCPU::JMP() {
 }
 
 void NESCPU::JSR() {
-	Uint16 returnAddr = PC + 2;
-	m_emu->m_bus->write(0x0100 + SP, (returnAddr >> 8) & 0xFF);
-	SP = (SP - 1) & 0xFF;
-	m_emu->m_bus->write(0x0100 + SP, returnAddr & 0xFF);
-	SP = (SP - 1) & 0xFF;
+	pushWord((PC + 2) & 0xFFFF);
 	nextPC = addressingMode();
 }
 
 void NESCPU::RTS() {
-	SP = (SP + 1) & 0xFF;
-	Uint8 low = m_emu->m_bus->read(0x0100 + SP);
-	SP = (SP + 1) & 0xFF;
-	Uint8 high = m_emu->m_bus->read(0x0100 + SP);
-	nextPC = ((high << 8) | low);
+	nextPC = popWord();
 }
 
 void NESCPU::BRK() {
-	nextPC = m_emu->m_bus->readLE(0xFFFE);
+	pushWord((PC + 2) & 0xFFFF);
+
+	nextPC = m_emu->m_bus->readWord(0xFFFE);
 	P |= 0x10;
 }
 
 void NESCPU::RTI() {
-	P = m_emu->m_bus->read(0x0100 + SP);
-	SP = (SP + 1) & 0xFF;
-	Uint8 low = m_emu->m_bus->read(0x0100 + SP);
-	SP = (SP + 1) & 0xFF;
-	Uint8 high = m_emu->m_bus->read(0x0100 + SP);
-	nextPC = ((high << 8) | low);
+	P = popByte();
+	nextPC = popWord();
 }
 
 void NESCPU::AND() {
@@ -1016,3 +1093,25 @@ void NESCPU::BIT() {
 	testZeroFlag(result);
 	P = (P & 0x3F) | (value & 0xC0);
 }
+
+void NESCPU::PHA() {
+	pushByte(A);
+}
+
+void NESCPU::PLA() {
+	A = popByte();
+	testZeroFlag(A);
+	testNegativeFlag(A);
+}
+
+void NESCPU::PHP() {
+	pushByte(P | 0x30);
+}
+
+void NESCPU::PLP() {
+	P = popByte() | 0x20;
+}
+
+void NESCPU::NOP() {
+}
+

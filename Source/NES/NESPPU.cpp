@@ -1,52 +1,91 @@
 #include "NESPPU.h"
 #include "NESEMU.h"
+#include "NESCPU.h"
 
-NESPPU::NESPPU(NESEMU *emu) : NESCMP(emu) {
-	m_registers = new Uint8[8];
-	m_vram = new Uint8[0x0800]; // 2KB of VRAM
-	m_oam = new Uint8[256]; // 256 bytes of OAM
-	m_palette = new Uint8[32]; // 32 bytes of palette RAM
+NESPPU::NESPPU(NESEMU *emu) : NESCMP(emu), m_width(256), m_height(240) {
+	m_registers = (Uint8 *)SDL_malloc(8 * sizeof(Uint8));
+	m_vram = (Uint8*)SDL_malloc(0x0800 * sizeof(Uint8));
+	m_oam = (Uint8*)SDL_malloc(256 * sizeof(Uint8));
+	m_palette = (Uint8*)SDL_malloc(32 * sizeof(Uint8));
+	m_buffer = (Uint32*)SDL_malloc(m_width * m_height * sizeof(Uint32));
 }
 
 NESPPU::~NESPPU() {
-	// Destructor implementation
 	if (m_registers) {
-		delete[] m_registers;
+		SDL_free(m_registers);
 		m_registers = nullptr;
 	}
 	if (m_vram) {
-		delete[] m_vram;
+		SDL_free(m_vram);
 		m_vram = nullptr;
 	}
 	if (m_oam) {
-		delete[] m_oam;
+		SDL_free(m_oam);
 		m_oam = nullptr;
 	}
 	if (m_palette) {
-		delete[] m_palette;
+		SDL_free(m_palette);
 		m_palette = nullptr;
 	}
+	if (m_buffer) {
+		SDL_free( m_buffer);
+		m_buffer = nullptr;
+	}
+}
+
+char* NESPPU::dump() {
+	char *str = (char *)SDL_malloc(sizeof(char)*80);
+	SDL_snprintf(str, 80,
+		"DOT: %03X, LINE: %03X, PPUCTRL: %02X, PPUMASK: %02X, PPUSTATUS: %02X", m_dot, m_scanline, m_emu->m_bus->read(0x2000), m_emu->m_bus->read(0x2001), m_emu->m_bus->read(0x2002));
+	return str;
 }
 
 void NESPPU::poweron() {
-	// Power on implementation
 	for (int i = 0; i < 8; ++i) {
-		m_registers[i] = 0x00; // Clear PPU registers
+		m_registers[i] = 0x00;
 	}
-}
-
-void NESPPU::reset() {
-	// Reset implementation
-	for (int i = 0; i < 8; ++i) {
-		m_registers[i] = 0x00; // Clear PPU registers
+	m_dot = 0;
+	m_scanline = 0;
+	for (int i = 0; i < m_width * m_height; ++i) {
+		m_buffer[i] = 0xFF000000;
 	}
+	
+	char *str = dump();
+	SDL_Log("NESPPU: poweron: %s", str);
+	SDL_free(str);
 }
 
 void NESPPU::update() {
-	// Update implementation
-	SDL_Log("PPU Registers: %02X %02X %02X %02X %02X %02X %02X %02X",
-		m_registers[0], m_registers[1], m_registers[2], m_registers[3],
-		m_registers[4], m_registers[5], m_registers[6], m_registers[7]);
+	Uint32 color = 0xFF000000;
+	if ((m_dot < m_width) && (m_scanline < m_height)) {
+		color = ((m_scanline << 8) & 0xFF00)| (m_dot & 0x00FF);
+		m_buffer[m_scanline * m_width + m_dot] = color;
+	}
+	
+	m_dot++;
+	if (m_dot >= m_width) {
+		m_dot = 0;
+		m_scanline++;
+	}
+
+	if (m_scanline == 241 && m_dot == 0) {
+		// VBLANK
+		m_registers[2] = m_registers[2] | 0x80;
+		m_isVblank = true;
+		m_emu->m_cpu->m_isNMIInterruptReq = true;
+	}
+
+	if (m_scanline >= 262) {
+		// FRAME
+		m_scanline = 0;
+		m_dot = 0;
+		m_registers[2] = m_registers[2] & ~0x80;
+		m_isVblank = false;
+	}
+
+	char *str = dump();
+	SDL_Log("NESPPU: update: %s", str);
+	SDL_free(str);
 }
 
 
@@ -62,6 +101,7 @@ Uint8 NESPPU::read(Uint16 addr) {
 	} else if (addr >= 0x3F00 && addr < 0x4000) {
 		return m_palette[addr % 32];
 	}
+	return 0x00;
 }
 
 void NESPPU::write(Uint16 addr, Uint8 data) {
@@ -76,17 +116,4 @@ void NESPPU::write(Uint16 addr, Uint8 data) {
 	} else if (addr >= 0x3F00 && addr < 0x4000) {
 		m_palette[addr % 32] = data;
 	}
-}
-
-Uint16 NESPPU::readLE(Uint16 addr) {
-	Uint8 low = read(addr);
-	Uint8 high = read(addr + 1);
-	return (high << 8) | low;
-}
-
-void NESPPU::writeLE(Uint16 addr, Uint16 data) {
-	Uint8 low = data & 0xFF;
-	Uint8 high = (data >> 8) & 0xFF;
-	write(addr, low);
-	write(addr + 1, high);
 }

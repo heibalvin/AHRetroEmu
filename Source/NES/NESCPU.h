@@ -4,6 +4,9 @@
 #include <SDL3/SDL_stdinc.h>
 #include "NESCMP.h"
 
+#include <string>
+using namespace std;
+
 enum NESCPUAddressingMode {
 	IMMEDIATE,
 	ZERO_PAGE,
@@ -32,10 +35,9 @@ class NESCPU: NESCMP {
 public:
 	NESCPU(NESEMU *emu);
 	~NESCPU();
+	char* dump();
 
 	void poweron();
-	void poweron_easy6502();
-	void reset();
 	void update();
 
 	void fetch();
@@ -45,6 +47,12 @@ public:
 	void testZeroFlag(Uint8 value);
 	void testNegativeFlag(Uint8 value);
 	Uint16 addressingMode();
+
+	void pushWord(Uint16 value);
+	Uint16 popWord();
+
+	void pushByte(Uint8 value);
+	Uint8 popByte();
 
 	void CLC();
 	void SEC();
@@ -97,10 +105,21 @@ public:
 	void RTS();
 	void BRK();
 	void RTI();
+	void PHP();
+	void PLA();
+	void PLP();
+	void PHA();
+	void NOP();
+
+	void reset_interrupt();
+	void nmi_interrupt();
+	void irq_interrupt();
 
 private:
 	friend class NESBUS;
-	bool isRunning = false;
+	friend class NESEMU;
+	friend class NESPPU;
+
 	// CPU state variables
 	Uint16 PC; // Program Counter
 	Uint8 SP;  // Stack Pointer
@@ -108,9 +127,14 @@ private:
 	Uint8 X;   // X Register
 	Uint8 Y;   // Y Register
 	Uint8 P;   // Processor Status
-	Uint8 *m_memory; // Pointer to NES 2 KB of internal memory
+
+	Uint8 *m_wram;
 	NESCPUOPCODE opcode_table[256]; // Opcode lookup table
 	NESCPUOPCODE *opcode; // Currently executing opcode
 	Uint16 nextPC; // Program Counter
-	int delay_cycles = 0; // Cycles to delay for certain instructions
+	int delay_cycles = 0;
+
+	bool m_isResetInterruptReq = false;
+	bool m_isNMIInterruptReq = false;
+	bool m_isIRQInterruptReq = false;
 };

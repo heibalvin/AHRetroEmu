@@ -33,31 +33,23 @@ void NESEMU::poweron() {
 	m_cycle_count = 0;
 	m_cpu->poweron();
 	m_ppu->poweron();
-	SDL_Log("NESEMU: emulator powered on");
-}
-
-void NESEMU::reset() {
-	// Reset implementation
-	m_cycle_count = 0;
-	SDL_Log("NESEMU: emulator reset");
+	SDL_Log("NESEMU: poweron successfully!");
 }
 
 void NESEMU::update() {
-	// Update implementation
+	m_ppu->update();
+	m_ppu->update();
 	m_ppu->update();
 
-	if (m_cycle_count % 3 == 0) {
-		m_cpu->update();
-	}
+	m_cpu->update();
 	
-	m_cycle_count++;
-	// SDL_Log("NESEMU: emulator state updated, cycle count: %d", m_cycle_count);
+	m_cycle_count += 3;
 }
 
 void NESEMU::loadRom(Uint8* datas) {
-	// Load ROM implementation
 	m_dsk->load(datas);
-	char *json = m_dsk->toJSON();
+
+	char* json = m_dsk->toJSON();
 	SDL_Log("NESEMU: ROM loaded: %s", json);
-	delete[] json;
+	SDL_free(json);
 }
