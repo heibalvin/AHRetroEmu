@@ -4,10 +4,6 @@
 Build/*
 *.o
 
-# Executable files
-AHCH8EMU
-AHNESEMU
-
 # IDE and editor files
 .vscode/
 .idea/
