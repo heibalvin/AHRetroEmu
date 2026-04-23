@@ -3,12 +3,16 @@
 # Build artifacts
 Build/*
 !Build/
+!Build/.gitkeep
 NES/Build/*
 !NES/Build/
+!NES/Build/.gitkeep
 Chip8/Build/*
 !Chip8/Build/
+!Chip8/Build/.gitkeep
 SDL3/Build/*
 !SDL3/Build/
+!SDL3/Build/.gitkeep
 *.o
 
 # IDE and editor files
