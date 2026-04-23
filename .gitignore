@@ -2,6 +2,13 @@
 
 # Build artifacts
 Build/*
+!Build/
+NES/Build/*
+!NES/Build/
+Chip8/Build/*
+!Chip8/Build/
+SDL3/Build/*
+!SDL3/Build/
 *.o
 
 # IDE and editor files
@@ -15,4 +22,8 @@ Build/*
 .dependencies
 
 # ROMs
-/Roms/*
+*.nes
+NES/Roms/*
+!NES/Roms/
+Chip8/Roms/*
+!Chip8/Roms/

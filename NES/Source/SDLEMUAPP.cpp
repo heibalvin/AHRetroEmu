@@ -95,7 +95,7 @@ void SDLEMUAPP::input() {
                 switch (event.key.key) {
                     case SDLK_SPACE:
                         update();
-                        m_isStepByStep = false;
+                        m_isStepByStep = true;
                         break;
                     case SDLK_UP:
                         SDL_Log("SDLEMUAPP: KeyBoard Up Pressed");
