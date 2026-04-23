@@ -4,9 +4,16 @@ A retro console emulator suite written in C++ with SDL3. Currently supporting Ch
 
 ## Table of Contents
 
+- [Emulators](#emulators)
 - [Requirements](#requirements)
 - [Project Structure](#project-structure)
-- [Emulators](#emulators)
+
+
+## Emulators
+
+- [NES](./NES/) - NES emulator with CPU, PPU, and APU emulation
+- [Chip-8](./Chip8/) - Chip-8 virtual machine emulator
+- [SDL3](./SDL3/) - SDL3 example programs
 
 ## Requirements
 
@@ -30,8 +37,7 @@ AHRetroEmu/
 ├── Chip8/                       # Chip-8 emulator
 │   ├── Source/                  # Chip-8 source code
 │   ├── Build/                   # Build output
-│   ├── Roms/                    # Chip-8 ROM files
-│   ├── Assets/                  # Chip-8 assets
+│   ├── Resources/               # Chip-8 ROM & Sound files
 │   └── Makefile                 # Chip-8 build configuration
 │
 └── SDL3/                        # SDL3 examples
@@ -39,9 +45,3 @@ AHRetroEmu/
     ├── Build/                   # Build output
     └── Makefile                 # SDL3 build configuration
 ```
-
-## Emulators
-
-- [NES](./NES/) - NES emulator with CPU, PPU, and APU emulation
-- [Chip-8](./Chip8/) - Chip-8 virtual machine emulator
-- [SDL3](./SDL3/) - SDL3 example programs

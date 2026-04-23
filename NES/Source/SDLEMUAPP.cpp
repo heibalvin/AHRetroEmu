@@ -151,7 +151,7 @@ void SDLEMUAPP::load(const char* filename) {
     }
 
     SDL_strlcpy(filepath, basepath, sizeof(filepath));
-    SDL_strlcat(filepath, "../../Resources/ROMs/NES/", sizeof(filepath));
+    SDL_strlcat(filepath, "../ROMs/", sizeof(filepath));
     SDL_strlcat(filepath, filename, sizeof(filepath));
     SDL_free((char *)basepath);
 
