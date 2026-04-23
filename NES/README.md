@@ -36,7 +36,7 @@ Output: `Build/nesemu`
 
 ```bash
 # Run with a ROM file
-Build/nesemu path/to/rom.nes
+Build/nesemu Roms/rom.nes
 
 # Build and run
 make run

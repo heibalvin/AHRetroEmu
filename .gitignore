@@ -22,7 +22,6 @@ SDL3/Build/*
 .dependencies
 
 # ROMs
-*.nes
 NES/Roms/*
 !NES/Roms/
 Chip8/Roms/*
