@@ -43,7 +43,7 @@ void initResourceBase() {
     const char* base_path = SDL_GetBasePath();
     if (base_path) {
         SDL_strlcpy(resourceBase, base_path, sizeof(resourceBase));
-        SDL_strlcat(resourceBase, "Resources/", sizeof(resourceBase));
+        SDL_strlcat(resourceBase, "../Resources/", sizeof(resourceBase));
         SDL_free((void*)base_path);
     }
 }

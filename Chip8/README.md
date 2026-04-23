@@ -18,26 +18,26 @@ The Chip-8 emulator is a faithful implementation of the Chip-8 virtual machine, 
 
 ## Building
 
-From project root:
+From `Chip8/` directory:
 
 ```bash
-make ch8       # Build Chip-8 emulator only
+make           # Build Chip-8 emulator (default)
 make clean     # Clean build artifacts
 ```
 
-Output: `Build/CH8/AHCH8EMU`
+Output: `Build/chip8emu`
 
 ## Running
 
 ```bash
 # Run without ROM (displays test pattern)
-Build/CH8/AHCH8EMU
+Build/chip8emu
 
 # Run with specific ROM
-Build/CH8/AHCH8EMU 5-quirks.ch8
+Build/chip8emu 5-quirks.ch8
 
 # Build and run
-make run-ch8
+make run
 ```
 
 ## Controls
@@ -63,6 +63,13 @@ A 0 B F     Z X C V
 - **ESC**: Quit emulator
 - **Any Key**: General input
 
+## Resources & References
+
+- [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM) - Comprehensive instruction documentation
+- [Guide to Making a CHIP-8 Emulator](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/#instructions) - Step-by-step implementation guide
+- [Chip-8 Test Suite](https://github.com/Timendus/chip8-test-suite) - Official test ROMs and documentation
+- [SDL3 Documentation](https://wiki.libsdl.org/SDL3/) - Graphics and input library
+
 ## Test ROMs
 
 All included test ROMs execute successfully:
@@ -77,7 +84,7 @@ All included test ROMs execute successfully:
 | 6-keypad.ch8 | 2 / 3 PASS | Keypad input test |
 | 7-beep.ch8 | ✅ PASS | Audio beep test |
 
-Test ROMs are located in: `../../Resources/CH8/`
+Test ROMs are located in: `Roms/`
 
 ## Architecture
 
@@ -86,6 +93,12 @@ Test ROMs are located in: `../../Resources/CH8/`
 - **ch8-emu.h**: Core emulator definitions and interfaces
 - **ch8-emu.cpp**: CPU emulation core (64KB RAM, registers, opcodes)
 - **ch8-emu-main.cpp**: SDL3 graphics, input handling, and main loop
+
+### Build Structure
+
+- **Source/**: C++ source files
+- **Build/**: Compiled object files and executable
+- **Roms/**: Chip-8 ROM files
 
 ### Emulator State
 
@@ -134,18 +147,13 @@ NNN = 12-bit address
 4. **Increment**: Move PC to next instruction (or jump)
 5. **Update Timers**: Decrement delay and sound timers
 
-## Resources & References
 
-- [Cowgod's Chip-8 Technical Reference](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM) - Comprehensive instruction documentation
-- [Guide to Making a CHIP-8 Emulator](https://tobiasvl.github.io/blog/write-a-chip-8-emulator/#instructions) - Step-by-step implementation guide
-- [Chip-8 Test Suite](https://github.com/Timendus/chip8-test-suite) - Official test ROMs and documentation
-- [SDL3 Documentation](https://wiki.libsdl.org/SDL3/) - Graphics and input library
 
 ## Troubleshooting
 
 **Issue: No ROM loads**
 - Ensure ROM file path is correct and relative to executable directory
-- Check `Resources/CH8/` folder for available test ROMs
+- Check `Resources/` folder for available test ROMs
 
 **Issue: No sound**
 - Verify SDL3 audio initialization succeeded

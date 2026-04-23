@@ -1,20 +1,32 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -I./Source
-LDFLAGS = -lSDL2
+SDL3_DIR = /opt/homebrew/opt/sdl3
+CXXFLAGS = -std=c++17 -Wall -I$(SDL3_DIR)/include -I./Source
+LDFLAGS = -L$(SDL3_DIR)/lib -lSDL3
 
-SRC = $(wildcard Source/*.cpp)
-OBJ = $(SRC:.cpp=.o)
-TARGET = Build/chip8emu
+SRC_MAIN = Source/ch8-emu-main.cpp
+SRC_EMU = Source/ch8-emu.cpp
+
+OBJ_DIR = Build
+OBJ_MAIN = $(OBJ_DIR)/ch8-emu-main.o
+OBJ_EMU = $(OBJ_DIR)/ch8-emu.o
+
+TARGET = $(OBJ_DIR)/chip8emu
 
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CXX) $(OBJ) $(LDFLAGS) -o $@
+$(TARGET): $(OBJ_MAIN) $(OBJ_EMU)
+	$(CXX) $^ $(LDFLAGS) -o $@
 
-%.o: %.cpp
+$(OBJ_MAIN): $(SRC_MAIN)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-clean:
-	rm -f $(OBJ) $(TARGET)
+$(OBJ_EMU): $(SRC_EMU)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-.PHONY: all clean
+run: all
+	./$(TARGET)
+
+clean:
+	rm -f $(OBJ_MAIN) $(OBJ_EMU) $(TARGET)
+
+.PHONY: all run clean
