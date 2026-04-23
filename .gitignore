@@ -1,7 +1,7 @@
 .DS_Store
 
 # Build artifacts
-Build/
+Build/*
 *.o
 
 # Executable files
