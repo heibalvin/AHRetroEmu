@@ -49,8 +49,6 @@ int main(int argc, char *argv[]) {
     }
 
     // 4. Cleanup
-
-    SDL_DestroyWindow(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;

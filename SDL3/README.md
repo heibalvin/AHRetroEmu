@@ -1,6 +1,6 @@
 # SDL3 Examples
 
-Simple SDL3 example programs using the SDL3 library installed at `/opt/homebrew/opt/sdl3`.
+Simple SDL3 example programs using the SDL3 library installed at SDL3_DIR = `/opt/homebrew/opt/sdl3`.
 
 ## Source Files
 

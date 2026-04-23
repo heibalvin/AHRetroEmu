@@ -1,6 +1,7 @@
 CC = gcc
-CFLAGS = -Wall -I/opt/homebrew/opt/sdl3/include -I./Source
-LDFLAGS = -L/opt/homebrew/opt/sdl3/lib -lSDL3
+SDL3_DIR = /opt/homebrew/opt/sdl3
+CFLAGS = -Wall -I$(SDL3_DIR)/include -I./Source
+LDFLAGS = -L$(SDL3_DIR)/lib -lSDL3
 
 SRC_MAIN = Source/hello.c
 SRC_CALLBACKS = Source/hello-callbacks.c
