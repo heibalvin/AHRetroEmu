@@ -6,16 +6,21 @@
 #include "NESPPU.h"
 #include "NESBUS.h"
 
+enum NESEMUMODE {
+	NONE,
+	DEFAULT,
+	PAUSE,
+	STEP,
+	RST,
+	IRQ,
+	LINE,
+	VBLANK,
+	FRAME
+};
+
 class NESEMU: NESCMP {
 public:
-	enum Mode {
-		PAUSE,
-		STEP,
-		LINE,
-		VBLANK,
-		FRAME,
-		RUN
-	};
+	
 
 	NESEMU();
 	~NESEMU();
@@ -24,11 +29,7 @@ public:
 	void update();
 	void step();
 
-	void defaultRunMode();
-	void debugStepMode();
-	void debugLineMode();
-	void debugVBlankMode();
-	void debugFrameMode();
+	void setMode(NESEMUMODE mode)	{	m_mode = mode;		};
 
 	void loadRom(Uint8* datas);
 
@@ -42,12 +43,13 @@ private:
 	NESDSK *m_dsk;
 	NESCPU *m_cpu;
 	NESPPU *m_ppu;
-	int m_cycle_count = 0;
-	bool m_isLineEvent = false;
-	bool m_isVBlankEvent = false;
-	bool m_isFrameEvent = false;
-	bool m_isStepEvent = false;
 
+	int m_cycle_count = 0;
+
+	// NESEMU event
 	bool m_isAppRefreshReq = false;
-	Mode m_mode = PAUSE;
+	
+	// Mode m_mode = DEFAULT;
+	NESEMUMODE m_mode = RST;
+	NESEMUMODE m_event = NONE;
 };

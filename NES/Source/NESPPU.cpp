@@ -59,7 +59,7 @@ void NESPPU::poweron() {
 
 void NESPPU::update() {
 	Uint32 color = 0xFF000000;
-	if ((m_dot < m_width) && (m_scanline < m_height)) {
+	if ((m_dot < 256) && (m_scanline < 240)) {
 		color = ((m_scanline << 8) & 0xFF00)| (m_dot & 0x00FF);
 		m_buffer[m_scanline * m_width + m_dot] = color;
 	}
@@ -71,7 +71,7 @@ void NESPPU::update() {
 		m_scanline++;
 
 		// trigger EMU event
-		m_emu->m_isLineEvent = true;
+		m_emu->m_event = LINE;
 	}
 
 	if (m_scanline == 240 && m_dot == 0) {
@@ -82,10 +82,12 @@ void NESPPU::update() {
 		m_isVblank = true;
 		
 		// trigger CPU NMI
-		m_emu->m_cpu->m_isNMIInterruptReq = true;
+		m_emu->m_cpu->m_isNMIReq = true;
 		
 		// trigger EMU event for App SDL3 refresh
-		m_emu->m_isVBlankEvent = true;
+		m_emu->m_event = VBLANK;
+
+		m_emu->m_isAppRefreshReq = true;
 	}
 
 	if (m_scanline >= 262) {
@@ -98,11 +100,11 @@ void NESPPU::update() {
 		m_isVblank = false;
 
 		// trigger EMU event
-		m_emu->m_isFrameEvent = true;
+		m_emu->m_event = FRAME;
 	}
 
 	char *str = dump();
-	SDL_Log("NESPPU: update: %s", str);
+	SDL_Log("NESPPU: %s", str);
 	SDL_free(str);
 }
 

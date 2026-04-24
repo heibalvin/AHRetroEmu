@@ -134,7 +134,7 @@ private:
 	Uint16 nextPC; // Program Counter
 	int delay_cycles = 0;
 
-	bool m_isResetInterruptReq = false;
-	bool m_isNMIInterruptReq = false;
-	bool m_isIRQInterruptReq = false;
+	bool m_isRSTReq = false;
+	bool m_isNMIReq = false;
+	bool m_isIRQReq = false;
 };

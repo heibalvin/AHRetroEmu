@@ -92,20 +92,26 @@ void SDLEMUAPP::input() {
                 break;
             case SDL_EVENT_KEY_DOWN:
                 switch (event.key.key) {
-                    case SDLK_R:
-                        m_emu->defaultRunMode();
-                        break;
-                    case SDLK_L:
-                        m_emu->debugLineMode();
-                        break;
-                    case SDLK_V:
-                        m_emu->debugVBlankMode();
-                        break;
-                    case SDLK_F:
-                        m_emu->debugFrameMode();
+                    case SDLK_D:
+                        m_emu->setMode(DEFAULT);
                         break;
                     case SDLK_SPACE:
-                        m_emu->debugStepMode();
+                        m_emu->setMode(STEP);
+                        break;
+                    case SDLK_R:
+                        m_emu->setMode(RST);
+                        break;
+                    case SDLK_I:
+                        m_emu->setMode(IRQ);
+                        break;
+                    case SDLK_L:
+                        m_emu->setMode(LINE);
+                        break;
+                    case SDLK_V:
+                        m_emu->setMode(VBLANK);
+                        break;
+                    case SDLK_F:
+                        m_emu->setMode(FRAME);
                         break;
                     case SDLK_UP:
                         SDL_Log("SDLEMUAPP: KeyBoard Up Pressed");
@@ -201,5 +207,5 @@ void SDLEMUAPP::refresh() {
     SDL_RenderTexture(m_renderer, m_texture, nullptr, nullptr);
     SDL_RenderPresent(m_renderer);
 
-    SDL_Log("SDLEMUAPP: Refresh Required");
+    // SDL_Log("SDLEMUAPP: Refresh Required");
 }

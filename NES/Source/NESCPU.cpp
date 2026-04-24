@@ -240,7 +240,7 @@ NESCPU::~NESCPU() {
 char* NESCPU::dump() {
 	char *str = (char *)SDL_malloc(sizeof(char)*80);
 	SDL_snprintf(str, 80,
-		"A: %02X, X: %02X, Y: %02X, SP: %02X, P: %s%s%s%s%s%s%s%s, PC: %04X",
+		"A: %02X X: %02X Y: %02X SP: %02X P: %s%s%s%s%s%s%s%s PC: %04X",
 		A, X, Y, SP, (P & 0x80) ? "N" : ".", 
 		(P & 0x40) ? "V" : ".", 
 		(P & 0x20) ? "-" : ".", 
@@ -287,10 +287,10 @@ void NESCPU::poweron() {
 	nextPC = PC;
 	delay_cycles = 0;
 
-	m_isResetInterruptReq = true;
+	m_isRSTReq = true;
 
 	char *str = dump();
-	SDL_Log("NESCPU: poweron: %s", str);
+	SDL_Log("NESCPU: %s | poweron", str);
 	SDL_free(str);
 }
 
@@ -305,10 +305,8 @@ void NESCPU::reset_interrupt() {
 	nextPC = PC; // Initialize nextPC to the reset vector
 	delay_cycles = 0; // Clear delay cycles
 
-	m_isResetInterruptReq = false;
-
 	char *str = dump();
-	SDL_Log("NESCPU: reset interrupt: %s", str);
+	SDL_Log("NESCPU: %s | reset interrupt", str);
 	SDL_free(str);
 }
 
@@ -318,10 +316,9 @@ void NESCPU::nmi_interrupt() {
 	pushByte(P);
 
 	PC = m_emu->m_bus->readWord(0xFFFA); // NMI vector will be loaded here
-	m_isNMIInterruptReq = false;
 		
 	char *str = dump();
-	SDL_Log("NESCPU: nmi interrupt: %s", str);
+	SDL_Log("NESCPU: %s | nmi interrupt", str);
 	SDL_free(str);
 }
 
@@ -332,34 +329,37 @@ void NESCPU::irq_interrupt() {
 		pushByte(P);
 
 		PC = m_emu->m_bus->readWord(0xFFFE); // IRQ vector will be loaded here
-		m_isIRQInterruptReq = false;
 
 		char *str = dump();
-		SDL_Log("NESCPU: irq interrupt: %s", str);
+		SDL_Log("NESCPU: %s | irq interrupt", str);
 		SDL_free(str);
 	}
 }
 
 void NESCPU::update() {
-	// if (delay_cycles > 0) {
-	// 	delay_cycles --;
-	// 	SDL_Log("NESCPU: Delay Cycle");
-	// 	return;
-	// }
+	/* DEBUG: removed delay cycle for debugging
+	if (delay_cycles > 0) {
+		delay_cycles --;
+		SDL_Log("NESCPU: Delay Cycle");
+		return;
+	}
+	*/
 
-	if (m_isResetInterruptReq) {
+	if (m_isRSTReq) {
 		reset_interrupt();
-		m_isResetInterruptReq = false;
+		m_isRSTReq = false;
+		m_emu->m_event = RST;
 	}
 
-	if (m_isNMIInterruptReq) {
+	if (m_isNMIReq) {
 		nmi_interrupt();
-		m_isNMIInterruptReq = false;
+		m_isNMIReq = false;
 	}
 
-	if (m_isIRQInterruptReq) {
+	if (m_isIRQReq) {
 		irq_interrupt();
-		m_isIRQInterruptReq = false;
+		m_isIRQReq = false;
+		m_emu->m_event = IRQ;
 	}
 
 	fetch();
@@ -381,11 +381,11 @@ void NESCPU::decode() {
 
 	char opcodes[80];
 	if (opcode->length == 1) {
-		SDL_snprintf(opcodes, 80, " : %02X      ", op);
+		SDL_snprintf(opcodes, 80, "%02X      ", op);
 	} else if (opcode->length == 2) {
-		SDL_snprintf(opcodes, 80, " : %02X %02X   ", op, op1);
+		SDL_snprintf(opcodes, 80, "%02X %02X   ", op, op1);
 	} else if (opcode->length == 3) {
-		SDL_snprintf(opcodes, 80, " : %02X %02X %02X", op, op1, op2);
+		SDL_snprintf(opcodes, 80, "%02X %02X %02X", op, op1, op2);
 	}
 
 	char mnemonic[80];

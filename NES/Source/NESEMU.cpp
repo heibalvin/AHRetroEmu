@@ -31,19 +31,17 @@ void NESEMU::poweron() {
 	m_cycle_count = 0;
 	m_cpu->poweron();
 	m_ppu->poweron();
-
-	// m_mode = RUN;
-	m_mode = PAUSE;
-	SDL_Log("NESEMU: poweron successfully - DEBUG PAUSE mode");
 }
 
 void NESEMU::step() {
-	// Run one cycle
+	// Run one accelerated cycle
 	m_ppu->update();
-	if (m_cycle_count % 3 == 0) {
-		m_cpu->update();
-	}
-	m_cycle_count += 1;
+	m_ppu->update();
+	m_ppu->update();
+
+	m_cpu->update();
+	
+	m_cycle_count += 3;
 }
 
 void NESEMU::update() {
@@ -52,60 +50,17 @@ void NESEMU::update() {
 	}
 
 	step();
-	if (m_isVBlankEvent == true) {
-		m_isAppRefreshReq = true;
-		m_isVBlankEvent = false;
-
-		if (m_mode == VBLANK) {
-			m_mode = PAUSE;
-			SDL_Log("NESEMU: VBlank reached - PAUSED");
-			return;
-		}
-	}
-
-	// Check for line event
-	if (m_mode == LINE && m_isLineEvent) {
-		m_mode = PAUSE;
-		m_isLineEvent = false;
-		SDL_Log("NESEMU: Line complete - PAUSED");
-		return;
-	}
-
-	if (m_mode == FRAME && m_isFrameEvent) {
-		m_mode = PAUSE;
-		m_isFrameEvent = false;
-		SDL_Log("NESEMU: Frame complete - PAUSED");
-		return;
-	}
 
 	if (m_mode == STEP) {
 		m_mode = PAUSE;
 		return;
 	}
-}
 
-void NESEMU::defaultRunMode() {
-	m_mode = RUN;
-	SDL_Log("NESEMU: Running continuously");
-}
-
-void NESEMU::debugStepMode() {
-	m_mode = STEP;
-}
-
-void NESEMU::debugLineMode() {
-	m_mode = LINE;
-	SDL_Log("NESEMU: Running until next line");
-}
-
-void NESEMU::debugVBlankMode() {
-	m_mode = VBLANK;
-	SDL_Log("NESEMU: Running until VBlank");
-}
-
-void NESEMU::debugFrameMode() {
-	m_mode = FRAME;
-	SDL_Log("NESEMU: Running until frame complete");
+	if (m_event == m_mode) {
+		m_mode = PAUSE;
+		m_event = NONE;
+		return;
+	}
 }
 
 void NESEMU::loadRom(Uint8* datas) {
