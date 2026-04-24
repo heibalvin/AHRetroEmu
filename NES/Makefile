@@ -4,7 +4,6 @@ CXXFLAGS = -std=c++17 -Wall -I$(SDL3_DIR)/include -I./Source
 LDFLAGS = -L$(SDL3_DIR)/lib -lSDL3
 
 SRC = $(wildcard Source/*.cpp)
-
 OBJ_DIR = Build
 OBJ = $(patsubst Source/%.cpp,$(OBJ_DIR)/%.o,$(SRC))
 

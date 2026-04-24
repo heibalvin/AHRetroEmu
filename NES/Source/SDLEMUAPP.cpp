@@ -52,7 +52,6 @@ SDLEMUAPP::SDLEMUAPP(const char* title, int width, int height): m_width(width), 
         return;
     }
 
-    m_isStepByStep = false;
     m_isRunning = true;
     SDL_Log("SDLEMU: SDL initialized successfully");
 }
@@ -93,9 +92,20 @@ void SDLEMUAPP::input() {
                 break;
             case SDL_EVENT_KEY_DOWN:
                 switch (event.key.key) {
+                    case SDLK_R:
+                        m_emu->defaultRunMode();
+                        break;
+                    case SDLK_L:
+                        m_emu->debugLineMode();
+                        break;
+                    case SDLK_V:
+                        m_emu->debugVBlankMode();
+                        break;
+                    case SDLK_F:
+                        m_emu->debugFrameMode();
+                        break;
                     case SDLK_SPACE:
-                        update();
-                        m_isStepByStep = true;
+                        m_emu->debugStepMode();
                         break;
                     case SDLK_UP:
                         SDL_Log("SDLEMUAPP: KeyBoard Up Pressed");
@@ -151,7 +161,7 @@ void SDLEMUAPP::load(const char* filename) {
     }
 
     SDL_strlcpy(filepath, basepath, sizeof(filepath));
-    SDL_strlcat(filepath, "../ROMs/", sizeof(filepath));
+    SDL_strlcat(filepath, "../Roms/", sizeof(filepath));
     SDL_strlcat(filepath, filename, sizeof(filepath));
     SDL_free((char *)basepath);
 
@@ -171,10 +181,10 @@ void SDLEMUAPP::poweron() {
 
 void SDLEMUAPP::update() {
     m_emu->update();
-    if (m_emu->m_isRefreshReq) {
+
+    if (m_emu->m_isAppRefreshReq == true) {
         refresh();
-        m_emu->m_isRefreshReq = false;
-        m_isStepByStep = true;
+        m_emu->m_isAppRefreshReq = false;
     }
 }
 
@@ -182,7 +192,7 @@ void SDLEMUAPP::refresh() {
     void* pixels;
     int pitch;
     if (SDL_LockTexture(m_texture, nullptr, &pixels, &pitch)) {
-        SDL_memcpy(pixels, m_emu->m_ppu->m_buffer, m_width * m_height * sizeof(Uint32));
+        SDL_memcpy(pixels, m_emu->m_ppu->buffer(), m_width * m_height * sizeof(Uint32));
         SDL_UnlockTexture(m_texture);
     }
 

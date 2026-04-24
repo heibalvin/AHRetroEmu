@@ -319,7 +319,6 @@ void NESCPU::nmi_interrupt() {
 
 	PC = m_emu->m_bus->readWord(0xFFFA); // NMI vector will be loaded here
 	m_isNMIInterruptReq = false;
-	m_emu->m_isRefreshReq = true;
 		
 	char *str = dump();
 	SDL_Log("NESCPU: nmi interrupt: %s", str);

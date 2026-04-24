@@ -2,7 +2,9 @@
 #include "NESEMU.h"
 #include "NESCPU.h"
 
-NESPPU::NESPPU(NESEMU *emu) : NESCMP(emu), m_width(256), m_height(240) {
+const Uint32 NESPPU::m_palette_rgb[65] = { 0x000000, 0xfcfcfc, 0xf8f8f8, 0xbcbcbc, 0x7c7c7c, 0xa4e4fc, 0x3cbcfc, 0x0078f8, 0x0000fc, 0xb8b8f8, 0x6888fc, 0x0058f8, 0x0000bc, 0xd8b8f8, 0x9878f8, 0x6844fc, 0x4428bc, 0xf8b8f8, 0xf878f8, 0xd800cc, 0x940084, 0xf8a4c0, 0xf85898, 0xe40058, 0xa80020, 0xf0d0b0, 0xf87858, 0xf83800, 0xa81000, 0xfce0a8, 0xfca044, 0xe45c10, 0x881400, 0xf8d878, 0xf8b800, 0xac7c00, 0x503000, 0xd8f878, 0xb8f818, 0x00b800, 0x007800, 0xb8f8b8, 0x58d854, 0x00a800, 0x006800, 0xb8f8d8, 0x58f898, 0x00a844, 0x005800, 0x00fcfc, 0x00e8d8, 0x008888, 0x004058, 0xf8d8f8, 0x787878 };
+
+NESPPU::NESPPU(NESEMU *emu) : NESCMP(emu), m_width(341), m_height(262) {
 	m_registers = (Uint8 *)SDL_malloc(8 * sizeof(Uint8));
 	m_vram = (Uint8*)SDL_malloc(0x0800 * sizeof(Uint8));
 	m_oam = (Uint8*)SDL_malloc(256 * sizeof(Uint8));
@@ -36,7 +38,7 @@ NESPPU::~NESPPU() {
 char* NESPPU::dump() {
 	char *str = (char *)SDL_malloc(sizeof(char)*80);
 	SDL_snprintf(str, 80,
-		"DOT: %03X, LINE: %03X, PPUCTRL: %02X, PPUMASK: %02X, PPUSTATUS: %02X", m_dot, m_scanline, m_emu->m_bus->read(0x2000), m_emu->m_bus->read(0x2001), m_emu->m_bus->read(0x2002));
+		"D: %03d, L: %03d, PPUCTRL: %02X, PPUMASK: %02X, PPUSTATUS: %02X", m_dot, m_scanline, m_emu->m_bus->read(0x2000), m_emu->m_bus->read(0x2001), m_emu->m_bus->read(0x2002));
 	return str;
 }
 
@@ -64,15 +66,26 @@ void NESPPU::update() {
 	
 	m_dot++;
 	if (m_dot >= m_width) {
+		// Line Event
 		m_dot = 0;
 		m_scanline++;
+
+		// trigger EMU event
+		m_emu->m_isLineEvent = true;
 	}
 
-	if (m_scanline == 241 && m_dot == 0) {
-		// VBLANK
+	if (m_scanline == 240 && m_dot == 0) {
+		// VBlank Event
 		m_registers[2] = m_registers[2] | 0x80;
+		
+		// set internal flag
 		m_isVblank = true;
+		
+		// trigger CPU NMI
 		m_emu->m_cpu->m_isNMIInterruptReq = true;
+		
+		// trigger EMU event for App SDL3 refresh
+		m_emu->m_isVBlankEvent = true;
 	}
 
 	if (m_scanline >= 262) {
@@ -80,7 +93,12 @@ void NESPPU::update() {
 		m_scanline = 0;
 		m_dot = 0;
 		m_registers[2] = m_registers[2] & ~0x80;
+
+		// unset internal flag
 		m_isVblank = false;
+
+		// trigger EMU event
+		m_emu->m_isFrameEvent = true;
 	}
 
 	char *str = dump();

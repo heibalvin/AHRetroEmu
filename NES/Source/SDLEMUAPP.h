@@ -5,17 +5,16 @@
 class SDLEMUAPP
 {
 public:
-    bool m_isStepByStep = false;
     explicit SDLEMUAPP(const char* title, int width, int height);
     ~SDLEMUAPP();
 
     bool isRunning() const { return m_isRunning; }
+    NESEMU* getEmu() const { return m_emu; }
     void input();
 
     void poweron();
     void reset();
     void update();
-    void step();
     void refresh();
 
     void get_path(const char* filename, char* filepath);
@@ -28,5 +27,5 @@ private:
     SDL_Renderer* m_renderer;
     SDL_Texture* m_texture;
     bool m_isRunning = false;
-    
+
 };

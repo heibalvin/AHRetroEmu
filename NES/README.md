@@ -5,7 +5,7 @@ A Nintendo Entertainment System (NES) emulator with CPU, PPU, and APU emulation 
 ## Table of Contents
 
 - [Features](#features)
-- [Building](#building)
+- [Building](#building-&-testing)
 - [Running](#running)
 - [Controls](#controls)
 - [Architecture](#architecture)
@@ -20,29 +20,41 @@ A Nintendo Entertainment System (NES) emulator with CPU, PPU, and APU emulation 
 - **Display**: SDL3-based rendering at 256x240 resolution
 - **Input**: Standard NES controller support via SDL3
 - **Timing**: Accurate CPU/PPU timing synchronization
+- **Debug Modes**: Step, Line, VBlank, Frame, and Run modes for debugging
 
-## Building
+## Building & Testing
 
 From `NES/` directory:
 
 ```bash
-make           # Build NES emulator
-make clean     # Clean build artifacts
+make clean        # Clean build artifacts
+make              # Build NES emulator (one executable: `Build/nesemu`)
+make run          # Build and run
 ```
-
-Output: `Build/nesemu`
 
 ## Running
 
 ```bash
 # Run with a ROM file
-Build/nesemu Roms/rom.nes
-
-# Build and run
-make run
+Build/nesemu rom.nes
 ```
 
 ROM files should be placed in the `Roms/` directory.
+
+### Default Behavior
+
+After poweron, the emulator starts in **PAUSED** mode.
+
+### Debug Controls (when built with `make debug`)
+
+| Key | Action |
+|-----|--------|
+| `Space` | Step mode - execute one CPU cycle, then pause |
+| `L` | Line mode - run until next PPU scanline, then pause |
+| `V` | VBlank mode - run until next VBlank, then pause |
+| `F` | Frame mode - run until frame complete, then pause |
+| `R` | Run mode - run continuously |
+| `ESC` | Quit emulator |
 
 ## Controls
 
@@ -59,14 +71,14 @@ ROM files should be placed in the `Roms/` directory.
 
 ### Source Files
 
-- **NESEMU.h/cpp**: Main emulator core and SDL3 application wrapper
+- **main.cpp**: Entry point
+- **SDLEMUAPP.h/cpp**: SDL3 application wrapper
+- **NESEMU.h/cpp**: Main emulator core with debug modes
 - **NESCPU.h/cpp**: 6502 CPU emulation
 - **NESPPU.h/cpp**: PPU graphics emulation
 - **NESBUS.h/cpp**: System bus and memory mapping
 - **NESDSK.h/cpp**: Disk System support
-- **NESCMP.h**: Compression utilities
-- **SDLEMUAPP.h/cpp**: SDL3 application framework
-- **ahnesemu-main.cpp**: Entry point
+- **NESCMP.h**: Component Protocol class
 
 ### Build Structure
 

@@ -6,7 +6,7 @@ SDLEMUAPP *g_app = nullptr;
 
 int main(int, char*[])
 {
-    g_app = new SDLEMUAPP("AHNESEMU", 256, 240);
+    g_app = new SDLEMUAPP("AHNESEMU", 341, 262);
     if (!g_app->isRunning()) {
         return EXIT_FAILURE;
     }
@@ -18,9 +18,7 @@ int main(int, char*[])
     // Main loop
     while (g_app->isRunning()) {
         g_app->input();
-        if (g_app->m_isStepByStep == false) {
-            g_app->update();
-        }
+        g_app->update();
     }
 
     // Shutdown emulator and SDL

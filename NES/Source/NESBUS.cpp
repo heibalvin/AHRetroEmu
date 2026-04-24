@@ -21,7 +21,7 @@ Uint8 NESBUS::read(Uint16 addr) {
 	if (addr < 0x2000) {
 		return m_emu->m_cpu->m_wram[addr % 0x0800];
 	} else if (addr >= 0x2000 && addr < 0x4000) {
-		return m_emu->m_ppu->m_registers[(addr - 0x2000) % 8];
+		return m_emu->m_ppu->read((addr - 0x2000) % 8);
 	} else if (addr >= 0x4000 && addr < 0x4016) {
 		return m_apu_registers[(addr - 0x4000)];
 	} else if (addr >= 0x4016 && addr < 0x4018) {
@@ -48,7 +48,7 @@ void NESBUS::write(Uint16 addr, Uint8 data) {
 	if (addr < 0x2000) {
 		m_emu->m_cpu->m_wram[addr % 0x0800] = data;
 	} else if (addr >= 0x2000 && addr < 0x4000) {
-		m_emu->m_ppu->m_registers[(addr - 0x2000) % 8] = data;
+		m_emu->m_ppu->write((addr - 0x2000) % 8, data);
 	} else if (addr >= 0x4000 && addr < 0x4016) {
 		m_apu_registers[(addr - 0x4000)] = data;
 	} else if (addr >= 0x4016 && addr < 0x4018) {

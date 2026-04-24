@@ -28,5 +28,7 @@ SDL3/Build/*
 # ROMs
 NES/Roms/*
 !NES/Roms/
+!NES/Roms/.gitkeep
 Chip8/Roms/*
 !Chip8/Roms/
+!Chip8/Roms/.gitkeep

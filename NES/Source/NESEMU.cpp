@@ -9,7 +9,6 @@ NESEMU::NESEMU() : NESCMP(nullptr) {
 }
 
 NESEMU::~NESEMU() {
-	// Destructor implementation
 	if (m_dsk) {
 		delete m_dsk;
 		m_dsk = nullptr;
@@ -29,21 +28,84 @@ NESEMU::~NESEMU() {
 }
 
 void NESEMU::poweron() {
-	// Power on implementation
 	m_cycle_count = 0;
 	m_cpu->poweron();
 	m_ppu->poweron();
-	SDL_Log("NESEMU: poweron successfully!");
+
+	// m_mode = RUN;
+	m_mode = PAUSE;
+	SDL_Log("NESEMU: poweron successfully - DEBUG PAUSE mode");
+}
+
+void NESEMU::step() {
+	// Run one cycle
+	m_ppu->update();
+	if (m_cycle_count % 3 == 0) {
+		m_cpu->update();
+	}
+	m_cycle_count += 1;
 }
 
 void NESEMU::update() {
-	m_ppu->update();
-	m_ppu->update();
-	m_ppu->update();
+	if (m_mode == PAUSE) {
+		return;
+	}
 
-	m_cpu->update();
-	
-	m_cycle_count += 3;
+	step();
+	if (m_isVBlankEvent == true) {
+		m_isAppRefreshReq = true;
+		m_isVBlankEvent = false;
+
+		if (m_mode == VBLANK) {
+			m_mode = PAUSE;
+			SDL_Log("NESEMU: VBlank reached - PAUSED");
+			return;
+		}
+	}
+
+	// Check for line event
+	if (m_mode == LINE && m_isLineEvent) {
+		m_mode = PAUSE;
+		m_isLineEvent = false;
+		SDL_Log("NESEMU: Line complete - PAUSED");
+		return;
+	}
+
+	if (m_mode == FRAME && m_isFrameEvent) {
+		m_mode = PAUSE;
+		m_isFrameEvent = false;
+		SDL_Log("NESEMU: Frame complete - PAUSED");
+		return;
+	}
+
+	if (m_mode == STEP) {
+		m_mode = PAUSE;
+		return;
+	}
+}
+
+void NESEMU::defaultRunMode() {
+	m_mode = RUN;
+	SDL_Log("NESEMU: Running continuously");
+}
+
+void NESEMU::debugStepMode() {
+	m_mode = STEP;
+}
+
+void NESEMU::debugLineMode() {
+	m_mode = LINE;
+	SDL_Log("NESEMU: Running until next line");
+}
+
+void NESEMU::debugVBlankMode() {
+	m_mode = VBLANK;
+	SDL_Log("NESEMU: Running until VBlank");
+}
+
+void NESEMU::debugFrameMode() {
+	m_mode = FRAME;
+	SDL_Log("NESEMU: Running until frame complete");
 }
 
 void NESEMU::loadRom(Uint8* datas) {
