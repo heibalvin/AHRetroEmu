@@ -61,20 +61,18 @@ class NESDSK: NESCOM, CustomStringConvertible {
     
     // Read from PRG ROM at offset (0x8000-FFFF, but we'll map the entire PRG ROM)
     func readPrgRom(_ addr: UInt16) -> UInt8 {
-        if (addr > 0x8000) && (addr < 0xC000) {
+        if addr < 0xC000 {
             return prgRoms[prgRomActive[0]][Int(addr - 0x8000)]
-        } else if (addr >= 0xC000) {
+        } else {
             return prgRoms[prgRomActive[1]][Int(addr - 0xC000)]
         }
-
-        return 0x00
     }
     
     // Write to PRG ROM at offset (0x8000-FFFF, but we'll map the entire PRG ROM)
     func writePrgRom(_ addr: UInt16, _ value: UInt8) {
-        if (addr > 0x8000) && (addr < 0xC000) {
+        if addr < 0xC000 {
             prgRoms[prgRomActive[0]][Int(addr - 0x8000)] = value
-        } else if (addr >= 0xC000) {
+        } else {
             prgRoms[prgRomActive[1]][Int(addr - 0xC000)] = value
         }
     }

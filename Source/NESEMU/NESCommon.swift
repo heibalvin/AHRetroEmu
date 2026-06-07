@@ -79,3 +79,23 @@ extension UInt8 {
         return (self & mask) != 0
     }
 }
+
+func dumpGrid(data: [UInt8], columns: Int = 16, label: String) -> String {
+    var output = "=== \(label) ===\n"
+    
+    // Loop through data and segment into rows
+    for i in stride(from: 0, to: data.count, by: columns) {
+        let rowIndex = i / columns
+        var rowString = String(format: "%02d: ", rowIndex)
+            
+        // Grab the chunk for this row boundary
+        let endOfRow = min(i + columns, data.count)
+        let rowBytes = data[i..<endOfRow]
+            
+        for byte in rowBytes {
+            rowString += String(format: "%02X ", byte)
+        }
+        output += rowString + "\n"
+    }
+    return output
+}

@@ -9,7 +9,9 @@ class NESBUS: NESCOM {
         if (addr < 0x2000) {
             return emu.cpu.read(addr)
         } else if (addr >= 0x2000 && addr < 0x4000) {
-            return emu.ppu.read(addr)
+            return emu.ppu.read(0x2000 | (addr & 0x0007))
+        } else if addr == 0x4016 {
+            return emu.key.read() // Assuming serialization is handled here
         } else if (addr >= 0x4020) {
             return emu.dsk.readPrgRom(addr)
         }
@@ -20,7 +22,9 @@ class NESBUS: NESCOM {
         if (addr < 0x2000) {
             emu.cpu.write(addr, value)
         } else if (addr >= 0x2000 && addr < 0x4000) {
-            emu.ppu.write(addr, value)
+            emu.ppu.write(0x2000 | (addr & 0x0007), value)
+        } else if addr == 0x4016 {
+            emu.key.write(addr, value) // Assuming serialization is handled here
         } else if (addr >= 0x4020) {
             emu.dsk.writePrgRom(addr, value)
         }

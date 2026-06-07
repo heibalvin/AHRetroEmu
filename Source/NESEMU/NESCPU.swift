@@ -44,7 +44,12 @@ class NESCPU: NESCOM {
     var Y: UInt8 = 0x00
     var SP: UInt8 = 0x00
     var PC: UInt16 = 0x0000
-    var P: UInt8 = 0x00         // Processor status flags
+    var P: UInt8 = 0x24 { // Initial state: Unused (0x20) | Interrupt Disable (0x04)
+        didSet {
+            // Enforce bit 5 is ALWAYS 1 across all operations
+            self.P |= 0x20 
+        }
+    }
 
     var isNMIInterrupt: Bool = false
     var isIRQInterrupt: Bool = false
@@ -308,41 +313,40 @@ class NESCPU: NESCOM {
             waitCycle -= 1
             return
         }
+
+        // Temporary debug print inside your CPU step loop
+        if PC == 0xC291 {
+            print("--- NESTEST FAILURE DETECTED ---")
+            print(String(format: "RAM $0002 (Result Code): 0x%02X", WRAM[0x0002]))
+            print(String(format: "RAM $0003 (Error Code):  0x%02X", WRAM[0x0003]))
+        }
             
         fetch()
         decode()
         execute()
     }
         
-    private func NMI() {
-        emu.setEvent(.nmi)
+    // Inside NESCPU.swift
+    func NMI() {
+        // 1. Clear the trigger immediately so RTI doesn't loop back here
+        self.isNMIInterrupt = false 
         
-        isNMIInterrupt = false // Latch cleared instantly
-        
-        // Push current Program Counter High and Low onto the Stack (Page 1)
+        // 2. Standard 6502 NMI stack push sequence
         emu.bus.write(0x0100 + UInt16(SP), UInt8((PC >> 8) & 0xFF))
         SP = SP &- 1
         emu.bus.write(0x0100 + UInt16(SP), UInt8(PC & 0xFF))
         SP = SP &- 1
         
-        // Push Processor status register flags onto stack (Clear Break bit 4, set bit 5)
-        var statusPush = P
-        // Explicitly format flags for an interrupt stacked context
-        statusPush |= NESCPUMASK.UNUSED.rawValue
-        statusPush &= ~NESCPUMASK.BREAK.rawValue
-        emu.bus.write(0x0100 + UInt16(SP), statusPush)
+        // Push status with Break bit cleared (bit 4 = 0, bit 5 = 1)
+        emu.bus.write(0x0100 + UInt16(SP), P | 0x20)
         SP = SP &- 1
         
-        // Lock out interrupt interleaving
         P.setMask(NESCPUMASK.INTERRUPT_DISABLE.rawValue)
         
-        // Pull target address location from standard Hardware NMI Vector registers ($FFFA / $FFFB)
-        let low = emu.bus.read(0xFFFA)
-        let high = emu.bus.read(0xFFFB)
-        PC = (UInt16(high) << 8) | UInt16(low)
-            
-        // A hardware NMI sequence inherently consumes 7 CPU cycles
-        waitCycle = 7
+        // Read NMI vector address from $FFFA/$FFFB
+        PC = emu.bus.readWord(0xFFFA)
+        
+        self.waitCycle = 7
     }
 
     func fetch() {
@@ -379,7 +383,7 @@ class NESCPU: NESCOM {
             }
         }
         
-        print(register + " | " + instructions + " | " + assembler)
+        log(register + " | " + instructions + " | " + assembler)
     }
 
     func execute() {
@@ -850,8 +854,8 @@ class NESCPU: NESCOM {
 
     func PLP() {
         SP = SP &+ 1
-        // Restore status flags, ensuring bit 5 remains 1 and bit 4 (break) is discarded
-        P = (emu.bus.read(0x0100 + UInt16(SP)) & 0xEF) | 0x20
+        let pulledStatus = emu.bus.read(0x0100 + UInt16(SP))
+        self.P = (pulledStatus & 0xEF) | 0x20
     }
 
     // MARK: - Flag Modification Operations
@@ -891,13 +895,18 @@ class NESCPU: NESCOM {
 
     func RTI() {
         SP = SP &+ 1
-        P = (emu.bus.read(0x0100 + UInt16(SP)) & 0xEF) | 0x20
+        let pulledStatus = emu.bus.read(0x0100 + UInt16(SP))
         
+        // Crucial: Keep bits 4 & 5 isolated; only restore real processor flags (NV-BDIZC)
+        // Bit 4 (Break) is ignored on pull, Bit 5 is always 1 on NES.
+        self.P = (pulledStatus & 0xEF) | 0x20
+
         SP = SP &+ 1
         let low = emu.bus.read(0x0100 + UInt16(SP))
         SP = SP &+ 1
         let high = emu.bus.read(0x0100 + UInt16(SP))
         
         nextPC = (UInt16(high) << 8) | UInt16(low)
+        waitCycle = 6
     }
 }

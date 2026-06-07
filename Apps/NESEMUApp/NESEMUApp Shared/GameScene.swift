@@ -9,11 +9,11 @@ import SpriteKit
 
 class GameScene: SKScene {
     var romname: String = ""
-    var emu: NESEMU = NESEMU(mode: .nmi)
+    var emu: NESEMU = NESEMU(mode: .frame)
     var emuNode = SKNode()
     var ppuNode = SKSpriteNode(texture: SKTexture(), color: .red, size: .zero)
     
-    class func newGameScene(romname: String = "Donkey Kong (World) (Rev A)") -> GameScene {
+    class func newGameScene(romname: String = "nestest") -> GameScene {
         let scene = GameScene()
         scene.size = CGSize(width: scene.emu.ppu.width, height: scene.emu.ppu.height)
         scene.scaleMode = .aspectFit
@@ -24,8 +24,8 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         emuNode.name = "emu"
-        emuNode.position = CGPoint(x: 0, y: emu.ppu.height)
-        emuNode.yScale = -1
+        emuNode.position = CGPoint(x: 0, y: 0)
+//        emuNode.yScale =
         addChild(emuNode)
         
         ppuNode = SKSpriteNode(texture: SKTexture(), color: .red, size: CGSize(width: emu.ppu.width, height: emu.ppu.height))

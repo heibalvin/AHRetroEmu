@@ -29,6 +29,10 @@
 		39685CB02FD3FB39001044A9 /* NESCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9A2FD3FB39001044A9 /* NESCommon.swift */; };
 		39BF2E0A2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */; };
 		39BF2E0B2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */; };
+		39BF2E0D2FD5D00D001B13AD /* cpu_dummy_reads.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E0C2FD5D00D001B13AD /* cpu_dummy_reads.nes */; };
+		39BF2E0E2FD5D00D001B13AD /* cpu_dummy_reads.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E0C2FD5D00D001B13AD /* cpu_dummy_reads.nes */; };
+		39BF2E102FD5D864001B13AD /* nestest.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E0F2FD5D864001B13AD /* nestest.nes */; };
+		39BF2E112FD5D864001B13AD /* nestest.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E0F2FD5D864001B13AD /* nestest.nes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +49,8 @@
 		39BF2DF22FD4340B001B13AD /* NESEMUApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NESEMUApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		39BF2DF32FD4340B001B13AD /* NESEMUApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NESEMUApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Donkey Kong (World) (Rev A).nes"; sourceTree = "<group>"; };
+		39BF2E0C2FD5D00D001B13AD /* cpu_dummy_reads.nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = cpu_dummy_reads.nes; sourceTree = "<group>"; };
+		39BF2E0F2FD5D864001B13AD /* nestest.nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = nestest.nes; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -131,8 +137,10 @@
 		3914363D2FD2CE6300A128AB /* Roms */ = {
 			isa = PBXGroup;
 			children = (
+				39BF2E0C2FD5D00D001B13AD /* cpu_dummy_reads.nes */,
 				3914363B2FD2CE6300A128AB /* .gitkeep */,
 				39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */,
+				39BF2E0F2FD5D864001B13AD /* nestest.nes */,
 				3914363C2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes */,
 			);
 			name = Roms;
@@ -255,8 +263,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				39BF2E0A2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */,
+				39BF2E0E2FD5D00D001B13AD /* cpu_dummy_reads.nes in Resources */,
 				3914363E2FD2CE6300A128AB /* .gitkeep in Resources */,
 				3914363F2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */,
+				39BF2E112FD5D864001B13AD /* nestest.nes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,8 +275,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				39BF2E0B2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */,
+				39BF2E0D2FD5D00D001B13AD /* cpu_dummy_reads.nes in Resources */,
 				391436402FD2CE6300A128AB /* .gitkeep in Resources */,
 				391436412FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */,
+				39BF2E102FD5D864001B13AD /* nestest.nes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
