@@ -1,8 +1,15 @@
 import Foundation
 
-class NESDSK: NESCOM {
+enum NESDSKMirroring {
+    case horizontal
+    case vertical
+    case fourscreen
+    case onescreen
+}
+
+class NESDSK: NESCOM, CustomStringConvertible {
     var mapper: Int = 0
-    var mirroring: Int = 0
+    var mirroring: NESDSKMirroring = .horizontal
 
     var prgRomCount = 0
     var prgRomSizeKB = 16
@@ -14,9 +21,13 @@ class NESDSK: NESCOM {
     var chrRoms: [[UInt8]] = []
     var chrRomActive = [ 0, 0]
     
-    func loadROM(_ data: [UInt8]) {
+    var description: String {
+        return "NESDSK:\n\tMapper: \(mapper)\n\tMirroring: \(mirroring)\n\tPRGROM: \(prgRomCount) * \(prgRomSizeKB) KB\n\tCHRROM: \(chrRomCount) * \(chrRomSizeKB) KB"
+    }
+    
+    func loadRom(_ data: [UInt8]) {
         if data[0] != 0x4E || data[1] != 0x45 || data[2] != 0x53 || data[3] != 0x1A {
-            print("Invalid iNES header")
+            log("NESDSK - ERROR: Invalid iNES header")
             return
         }
         
@@ -66,5 +77,24 @@ class NESDSK: NESCOM {
         } else if (addr >= 0xC000) {
             prgRoms[prgRomActive[1]][Int(addr - 0xC000)] = value
         }
+    }
+    
+    func readChrRom(_ addr: UInt16) -> UInt8 {
+        let page = addr >= 0x1000 ? 1 : 0
+        // Offset mapping inside the target 4KB bank sector segment
+        let offset = Int(addr & 0x0FFF)
+            
+        // Verify both the bank selector slice and relative array bounds are completely intact
+        guard chrRomActive[page] < chrRoms.count, offset < chrRoms[chrRomActive[page]].count else {
+            return 0x00
+        }
+            
+        return chrRoms[chrRomActive[page]][offset]
+    }
+        
+    func writeChrRom(_ addr: UInt16, _ value: UInt8) {
+        // Architectural Constraint: Mapper 0 utilizes fixed CHR-ROM chips.
+        // Writes are completely ignored on NROM, but we catch them safely here
+        // to prevent unexpected crash traps during boot configurations.
     }
 }

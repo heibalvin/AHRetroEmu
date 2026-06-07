@@ -1,6 +1,10 @@
 import Foundation
 
 class NESBUS: NESCOM {
+    override init(emu: NESEMU) {
+        super.init(emu: emu)
+    }
+    
     override func read(_ addr: UInt16) -> UInt8 {
         if (addr < 0x2000) {
             return emu.cpu.read(addr)

@@ -1,50 +1,410 @@
 import Foundation
 
-enum NESPPUREG: Int {
-    case PPUCTRL     = 0x2000
-    case PPUMASK     = 0x2001
-    case PPUSTATUS   = 0x2002
-    case OAMADDR     = 0x2003
-    case OAMDATA     = 0x2004
-    case PPUSCROLL   = 0x2005
-    case PPUADDR     = 0x2006
-    case PPUDATA     = 0x2007
-}
-
 class NESPPU: NESCOM {
-    // 2KB VRAM
-    private var VRAM = [UInt8](repeating: 0, count: 0x0800)
+    var VRAM = [UInt8](repeating: 0, count: 0x0800)     // 2KB VRAM
+    var OAM = [UInt8](repeating: 0, count: 0x0100)      // 256 bytes OAM
+    var PALETTE = [UInt8](repeating: 0, count: 0x20)    // 32 bytes PALETTE
+    var REGISTER = [UInt8](repeating: 0, count: 8)      // PPU Registers
+    let PPUCTRL     = 0
+    let PPUMASK     = 1
+    let PPUSTATUS   = 2
+    let OAMADDR     = 3
+    let OAMDATA     = 4
+    let PPUSCROLL   = 5
+    let PPUADDR     = 6
+    let PPUDATA     = 7
     
-    // 256 bytes OAM
-    private var OAM = [UInt8](repeating: 0, count: 0x0100)
+    var cycle: Int = 0
+    var scanline: Int = 0
     
-    // 32 bytes PALETTE
-    private var PALETTE = [UInt8](repeating: 0, count: 0x20)
-
-    // PPU Registers
-    private var REGISTER = [UInt8](repeating: 0, count: 8)
-
-    private var cycle: Int = 0
-    private var scanline: Int = 0
-
+    // --- Renamed Loopy Scroll Registers ---
+    var V: UInt16 = 0      // Current VRAM address (15 bits)
+    var T: UInt16 = 0      // Temporary VRAM address (15 bits)
+    var X: UInt8 = 0       // Fine X scroll (3 bits)
+    var W: UInt8 = 0       // First/second write toggle (1 bit)
+    
+    // Background Latches (temporary holding areas)
+    private var bgNextNameTable: UInt8 = 0
+    private var bgNextAttribute: UInt8 = 0
+    private var bgNextTileLow: UInt8 = 0
+    private var bgNextTileHigh: UInt8 = 0
+    
+    // Background Shift Registers (actively shifting pixel data out)
+    private var bgPatternShiftLow: UInt16 = 0
+    private var bgPatternShiftHigh: UInt16 = 0
+    private var bgAttributeShiftLow: UInt16 = 0
+    private var bgAttributeShiftHigh: UInt16 = 0
+    
+    // Standard NTSC 2C02 PPU System Palette Mapping (RGBA8888)
+    private let NTSCPalette: [UInt32] = [
+        0x7C7C7CFF, 0x0000FCFF, 0x0000BCFF, 0x4428BCFF, 0x940084FF, 0xA80020FF, 0xA81000FF, 0x881400FF,
+        0x503000FF, 0x007800FF, 0x006800FF, 0x005800FF, 0x004058FF, 0x000000FF, 0x000000FF, 0x000000FF,
+        0xBCBCBCFF, 0x0078F8FF, 0x0058FAFF, 0x6844FCFF, 0xD800CCFF, 0xE40058FF, 0xF83800FF, 0xE45C10FF,
+        0xAC7C00FF, 0x00B800FF, 0x00A800FF, 0x00A844FF, 0x008888FF, 0x000000FF, 0x000000FF, 0x000000FF,
+        0xF8F8F8FF, 0x3CBCFCFF, 0x6888FCFF, 0x9878F8FF, 0xF878F8FF, 0xF85898FF, 0xF87858FF, 0xFCA044FF,
+        0xF8B800FF, 0xB8F818FF, 0x58D854FF, 0x58F898FF, 0x00E8D8FF, 0x787878FF, 0x000000FF, 0x000000FF,
+        0xFCFCFCFF, 0xA4E4FCFF, 0xB8B8F8FF, 0xD8B8F8FF, 0xF8B8F8FF, 0xF8A4C0FF, 0xF0D0B0FF, 0xFCE0A4FF,
+        0xFCD878FF, 0xD8F878FF, 0xB8F8B8FF, 0xB8F8D8FF, 0x00FCFCFF, 0xD8D8D8FF, 0x000000FF, 0x000000FF
+    ]
+    
+    let width = 256
+    let height = 240
+    let bitsPerComponent = 8            // R, G, B and A
+    let bitsPerPixel = 8 * 4            // RGBA
+    let bytesPerPixel = 4
+    let bytesPerRow = 256 * 4
+    
+    // --- FIXED: Pre-allocate buffers upfront to avoid sizing issues ---
+    private var frontBuffer = [UInt8](repeating: 0, count: 256 * 240 * 4)
+    private var backBuffer  = [UInt8](repeating: 0, count: 256 * 240 * 4)
+    
+    // --- FIXED: Public safe accessor for GameScene to consume without naming mismatches ---
+    var buffer: [UInt8] { frontBuffer }
+    
+    // Preserves the delayed VRAM read buffer across different CPU cycles
+    private var ppuDataBuffer: UInt8 = 0
+    
+    var isDirty: Bool = false
+    var color: UInt8 = 0
+    
+    override func powerOn() {
+        frontBuffer = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+        backBuffer  = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+        REGISTER = [UInt8](repeating: 0, count: 8)
+        scanline = 261
+        cycle = 0
+        isDirty = false
+        
+        // Reset scroll registers
+        V = 0
+        T = 0
+        X = 0
+        W = 0
+    }
+    
+    override func powerOff() {
+        frontBuffer = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+        backBuffer = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+    }
+    
     override func read(_ addr: UInt16) -> UInt8 {
-        return REGISTER[Int(addr & 0x0007)]
-    }
-
-    override func write(_ addr: UInt16, _ value: UInt8) {
-        REGISTER[Int(addr & 0x0007)] = value
+        let reg = Int(addr & 0x0007)
+        
+        switch reg {
+        case PPUSTATUS: // Register 2
+            let value = REGISTER[PPUSTATUS]
+            
+            // CRITICAL SIDE EFFECT: Reading PPUSTATUS clears the VBlank flag (bit 7)
+            REGISTER[PPUSTATUS] &= 0x7F
+            
+            // CRITICAL SIDE EFFECT: Reading PPUSTATUS clears the address latch W
+            W = 0
+            
+            return value
+            
+        case OAMDATA: // Register 4
+            return OAM[Int(REGISTER[OAMADDR])]
+            
+        case PPUDATA: // Register 7
+            let currentAddress = V & 0x3FFF
+            var value = ppuRead(currentAddress)
+            
+            if currentAddress < 0x3F00 {
+                let bufferedValue = ppuDataBuffer
+                ppuDataBuffer = value
+                value = bufferedValue
+            } else {
+                ppuDataBuffer = ppuRead(currentAddress - 0x1000)
+            }
+            
+            let increment: UInt16 = (REGISTER[PPUCTRL] & 0x04) != 0 ? 32 : 1
+            V = V &+ increment
+            
+            return value
+            
+        default:
+            return REGISTER[reg]
+        }
     }
     
-    // TODO: Implement PPU stepping and rendering
+    override func write(_ addr: UInt16, _ value: UInt8) {
+        let reg = Int(addr & 0x0007)
+        REGISTER[reg] = value
+        
+        switch reg {
+        case PPUCTRL: // Register 0
+            T = (T & 0xF3FF) | (UInt16(value & 0x03) << 10)
+            
+        case PPUMASK: // Register 1
+            break
+            
+        case OAMADDR: // Register 3
+            break
+            
+        case OAMDATA: // Register 4
+            OAM[Int(REGISTER[OAMADDR])] = value
+            REGISTER[OAMADDR] = REGISTER[OAMADDR] &+ 1
+            
+        case PPUSCROLL: // Register 5 (Double Write)
+            if W == 0 {
+                T = (T & 0xFFE0) | UInt16(value >> 3)
+                X = value & 0x07
+                W = 1
+            } else {
+                T = (T & 0x8FC0) | (UInt16(value & 0x07) << 12) | (UInt16(value & 0xF8) << 2)
+                W = 0
+            }
+            
+        case PPUADDR: // Register 6 (Double Write)
+            if W == 0 {
+                T = (T & 0x00FF) | (UInt16(value & 0x3F) << 8)
+                W = 1
+            } else {
+                T = (T & 0xFF00) | UInt16(value)
+                V = T
+                W = 0
+            }
+            
+        case PPUDATA: // Register 7
+            let currentAddress = V & 0x3FFF
+            ppuWrite(currentAddress, value)
+            
+            let increment: UInt16 = (REGISTER[PPUCTRL] & 0x04) != 0 ? 32 : 1
+            V = V &+ increment
+            
+        default:
+            break
+        }
+    }
+    
+    private func ppuWrite(_ addr: UInt16, _ value: UInt8) {
+        let address = addr & 0x3FFF
+        if address < 0x2000 {
+            emu.dsk.writeChrRom(address, value)
+        } else if address >= 0x2000 && address < 0x3F00 {
+            VRAM[Int((address % 0x800) & 0x07FF)] = value
+        } else {
+            PALETTE[Int(address & 0x001F)] = value
+        }
+    }
+    
+    func swapBuffers() {
+        let temp = frontBuffer
+        frontBuffer = backBuffer
+        backBuffer = temp
+    }
+    
     func step() {
-        // Increment cycle and handle scanline
+        switch scanline {
+        case 0...239: // Visible Scanlines
+            processVisibleScanline()
+        case 240:     // Post-Render
+            break     // Idle
+        case 241:     // VBlank Entry
+            if cycle == 1 {
+                // FIXED: Assert proper 0x80 Bit Mask state on PPUSTATUS register
+                REGISTER[PPUSTATUS] |= 0x80
+                
+                // FIXED: Swap working rendering arrays instantly at frame completion
+                swapBuffers()
+                
+                // FIXED: Trigger CPU hardware NMI if NMI generation is enabled in PPUCTRL (Bit 7)
+                if (REGISTER[PPUCTRL] & 0x80) != 0 {
+                    emu.cpu.isNMIInterrupt = true
+                } else {
+                    log("PPU warning: VBlank occurred but NMI generation is disabled in PPUCTRL")
+                }
+                
+                emu.setEvent(.vblank)
+                isDirty = true
+            }
+        case 261:     // Pre-Render
+            processPreRenderScanline()
+            if cycle == 1 {
+                // FIXED: Clear Bit 7 mask safely via bitwise operations
+                REGISTER[PPUSTATUS] &= 0x7F
+                emu.setEvent(.frame)
+            }
+        default:
+            break
+        }
+        
+        // Advance PPU Clock
         cycle += 1
-        if cycle >= 341 {
+        if cycle > 340 {
             cycle = 0
             scanline += 1
-            if scanline >= 261 {
+            if scanline > 261   {
                 scanline = 0
             }
         }
+    }
+    
+    func processVisibleScanline() {
+        if cycle >= 1 && cycle <= 256 {
+            renderPixel()
+            shiftBackgroundRegisters()
+        }
+        
+        if (cycle >= 1 && cycle <= 256) || (cycle >= 321 && cycle <= 336) {
+            let fetchPhase = (cycle - 1) % 8
+            switch fetchPhase {
+            case 1:
+                bgNextNameTable = fetchNametableByte()
+            case 3:
+                bgNextAttribute = fetchAttributeByte()
+            case 5:
+                bgNextTileLow = fetchTileByte(isHighPlane: false)
+            case 7:
+                bgNextTileHigh = fetchTileByte(isHighPlane: true)
+                loadNextBackgroundTile()
+                incrementScrollX()
+            default:
+                break
+            }
+        }
+        
+        if cycle == 256 {
+            incrementScrollY()
+        }
+        
+        if cycle == 257 {
+            updateHorizontalScrollValues()
+        }
+    }
+    
+    private func loadNextBackgroundTile() {
+        bgPatternShiftLow = (bgPatternShiftLow & 0xFF00) | UInt16(bgNextTileLow)
+        bgPatternShiftHigh = (bgPatternShiftHigh & 0xFF00) | UInt16(bgNextTileHigh)
+        
+        bgAttributeShiftLow = (bgAttributeShiftLow & 0xFF00) | ((bgNextAttribute & 0x01) != 0 ? 0xFF : 0x00)
+        bgAttributeShiftHigh = (bgAttributeShiftHigh & 0xFF00) | ((bgNextAttribute & 0x02) != 0 ? 0xFF : 0x00)
+    }
+    
+    private func shiftBackgroundRegisters() {
+        bgPatternShiftLow <<= 1
+        bgPatternShiftHigh <<= 1
+        bgAttributeShiftLow <<= 1
+        bgAttributeShiftHigh <<= 1
+    }
+    
+    func processPreRenderScanline() {
+        processVisibleScanline()
+        
+        if cycle >= 280 && cycle <= 304 {
+            updateVerticalScrollValues()
+        }
+    }
+    
+    private func fetchNametableByte() -> UInt8 {
+        let address = 0x2000 | (V & 0x0FFF)
+        return ppuRead(address)
+    }
+    
+    private func fetchAttributeByte() -> UInt8 {
+        let nametableSelect = V & 0x0C00
+        let coarseY = (V >> 5) & 0x001F
+        let coarseX = V & 0x001F
+        
+        let address = 0x23C0 | nametableSelect | ((coarseY / 4) << 3) | (coarseX / 4)
+        let attributeByte = ppuRead(address)
+        
+        let shift = ((coarseY & 2) << 1) | (coarseX & 2)
+        return (attributeByte >> shift) & 0x03
+    }
+    
+    private func fetchTileByte(isHighPlane: Bool) -> UInt8 {
+        let baseAddress: UInt16 = (REGISTER[PPUCTRL] & 0x10) != 0 ? 0x1000 : 0x0000
+        let fineY = (V >> 12) & 0x07
+        var address = baseAddress + (UInt16(bgNextNameTable) * 16) + fineY
+        
+        if isHighPlane {
+            address += 8
+        }
+        return ppuRead(address)
+    }
+    
+    private func incrementScrollX() {
+        if (V & 0x001F) == 31 {
+            V &= ~0x001F
+            V ^= 0x0400
+        } else {
+            V += 1
+        }
+    }
+    
+    private func incrementScrollY() {
+        if (V & 0x7000) != 0x7000 {
+            V += 0x1000
+        } else {
+            V &= ~0x7000
+            var coarseY = (V & 0x03E0) >> 5
+            if coarseY == 29 {
+                coarseY = 0
+                V ^= 0x0800
+            } else if coarseY == 31 {
+                coarseY = 0
+            } else {
+                coarseY += 1
+            }
+            V = (V & ~0x03E0) | (coarseY << 5)
+        }
+    }
+    
+    private func updateHorizontalScrollValues() {
+        V = (V & 0xFBE0) | (T & 0x041F)
+    }
+    
+    private func updateVerticalScrollValues() {
+        V = (V & 0x041F) | (T & 0x7BE0)
+    }
+    
+    private func ppuRead(_ addr: UInt16) -> UInt8 {
+        let address = addr & 0x3FFF
+        if address < 0x2000 {
+            return emu.dsk.readChrRom(address)
+        } else if address >= 0x2000 && address < 0x3F00 {
+            return VRAM[Int((address % 0x800) & 0x07FF)]
+        } else {
+            return PALETTE[Int(address & 0x001F)]
+        }
+    }
+    
+    private func renderPixel() {
+        let x = cycle - 1
+        let y = scanline
+        
+        guard x >= 0 && x < width && y >= 0 && y < height else { return }
+        
+        let bitMux: UInt16 = 0x8000 >> X
+        
+        let pixelBit0: UInt8 = (bgPatternShiftLow & bitMux)  != 0 ? 1 : 0
+        let pixelBit1: UInt8 = (bgPatternShiftHigh & bitMux) != 0 ? 1 : 0
+        let bgPixelColorIndex = (pixelBit1 << 1) | pixelBit0
+        
+        let paletteBit0: UInt8 = (bgAttributeShiftLow & bitMux)  != 0 ? 1 : 0
+        let paletteBit1: UInt8 = (bgAttributeShiftHigh & bitMux) != 0 ? 1 : 0
+        let bgPaletteIndex = (paletteBit1 << 1) | paletteBit0
+        
+        var paletteAddress: UInt16 = 0x3F00
+        if bgPixelColorIndex != 0 {
+            paletteAddress |= (UInt16(bgPaletteIndex) << 2) | UInt16(bgPixelColorIndex)
+        }
+        
+        let systemColorID = Int(ppuRead(paletteAddress) & 0x3F)
+        
+        // DEFENSIVE GUARD: Ensure color palette indices do not step past NTSCPalette capacity
+        guard systemColorID < NTSCPalette.count else { return }
+        let rgbaColor = NTSCPalette[systemColorID]
+        
+        let bufferOffset = (y * width + x) * bytesPerPixel
+        
+        // DEFENSIVE GUARD: Avoid out-of-bounds exceptions on the backbuffer array
+        guard bufferOffset + 3 < backBuffer.count else { return }
+        
+        backBuffer[bufferOffset + 0] = UInt8((rgbaColor >> 24) & 0xFF) // R
+        backBuffer[bufferOffset + 1] = UInt8((rgbaColor >> 16) & 0xFF) // G
+        backBuffer[bufferOffset + 2] = UInt8((rgbaColor >> 8)  & 0xFF) // B
+        backBuffer[bufferOffset + 3] = UInt8(rgbaColor & 0xFF)         // A
     }
 }

@@ -8,118 +8,123 @@
 import SpriteKit
 
 class GameScene: SKScene {
+    var romname: String = ""
+    var emu: NESEMU = NESEMU(mode: .nmi)
+    var emuNode = SKNode()
+    var ppuNode = SKSpriteNode(texture: SKTexture(), color: .red, size: .zero)
     
-    
-    fileprivate var label : SKLabelNode?
-    fileprivate var spinnyNode : SKShapeNode?
-
-    
-    class func newGameScene() -> GameScene {
-        // Load 'GameScene.sks' as an SKScene.
-        guard let scene = SKScene(fileNamed: "GameScene") as? GameScene else {
-            print("Failed to load GameScene.sks")
-            abort()
-        }
-        
-        // Set the scale mode to scale to fit the window
-        scene.scaleMode = .aspectFill
-        
+    class func newGameScene(romname: String = "Donkey Kong (World) (Rev A)") -> GameScene {
+        let scene = GameScene()
+        scene.size = CGSize(width: scene.emu.ppu.width, height: scene.emu.ppu.height)
+        scene.scaleMode = .aspectFit
+        scene.anchorPoint = .zero
+        scene.romname = romname
         return scene
     }
     
-    func setUpScene() {
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
-        }
-        
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
-        
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 4.0
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
-    }
-    
     override func didMove(to view: SKView) {
-        self.setUpScene()
-    }
-
-    func makeSpinny(at pos: CGPoint, color: SKColor) {
-        if let spinny = self.spinnyNode?.copy() as! SKShapeNode? {
-            spinny.position = pos
-            spinny.strokeColor = color
-            self.addChild(spinny)
+        emuNode.name = "emu"
+        emuNode.position = CGPoint(x: 0, y: emu.ppu.height)
+        emuNode.yScale = -1
+        addChild(emuNode)
+        
+        ppuNode = SKSpriteNode(texture: SKTexture(), color: .red, size: CGSize(width: emu.ppu.width, height: emu.ppu.height))
+        ppuNode.name = "ppu"
+        ppuNode.blendMode = .replace
+        ppuNode.position = .zero
+        ppuNode.anchorPoint = .zero
+        emuNode.addChild(ppuNode)
+        
+        if loadRom(romname: romname) {
+            log("\(emu.dsk!)")
+            emu.powerOn()
         }
     }
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
+        emu.update(currentTime)
+        
+        // Render loop picks up the front buffer frame when the PPU signals it is ready
+        if emu.ppu.isDirty {
+            screenUpdate()
+            emu.ppu.isDirty = false
+        }
     }
-}
-
-#if os(iOS) || os(tvOS)
-// Touch-based event handling
-extension GameScene {
-
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+    
+    func screenUpdate() {
+        // Safe access via the computed 'buffer' property pointing to the immutable front surface
+        let cgImage = emu.ppu.buffer.withUnsafeBytes { unsafeRawBufferPointer -> CGImage? in
+            guard let baseAddress = unsafeRawBufferPointer.baseAddress else { return nil }
+                        
+            guard let provider = CGDataProvider(
+                dataInfo: nil,
+                data: baseAddress,
+                size: emu.ppu.buffer.count,
+                releaseData: { _, _, _ in }
+            ) else {
+                return nil
+            }
+                        
+            let colorSpace = CGColorSpaceCreateDeviceRGB()
+            let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue)
+                        
+            return CGImage(
+                width: emu.ppu.width,
+                height: emu.ppu.height,
+                bitsPerComponent: emu.ppu.bitsPerComponent,
+                bitsPerPixel: emu.ppu.bitsPerComponent * emu.ppu.bytesPerPixel,
+                bytesPerRow: emu.ppu.bytesPerRow,
+                space: colorSpace,
+                bitmapInfo: bitmapInfo,
+                provider: provider,
+                decode: nil,
+                shouldInterpolate: false, // Guarantees razor-sharp pixel art rendering
+                intent: .defaultIntent
+            )
         }
         
-        for t in touches {
-            self.makeSpinny(at: t.location(in: self), color: SKColor.green)
+        if let cgImage = cgImage {
+            let tex = SKTexture(cgImage: cgImage)
+            tex.filteringMode = .nearest // Prevents blurring when upscaling the output canvas
+            ppuNode.texture = tex
         }
     }
     
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches {
-            self.makeSpinny(at: t.location(in: self), color: SKColor.blue)
+    func loadRom(romname: String) -> Bool {
+        guard let url = Bundle.main.url(forResource: romname, withExtension: "nes") else {
+            log("NESEMUApp: Cannot find rom file: \(romname).nes")
+            return false
         }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches {
-            self.makeSpinny(at: t.location(in: self), color: SKColor.red)
+        
+        do {
+            let rom = try Data(contentsOf: url)
+            emu.loadRom([UInt8](rom))
+        } catch {
+            log("NESEMUApp: Cannot decode rom file: \(romname).nes")
+            return false
         }
+        log("NESEMUApp: Loaded rom: \(romname).nes")
+        return true
     }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches {
-            self.makeSpinny(at: t.location(in: self), color: SKColor.red)
-        }
-    }
-    
-   
 }
-#endif
 
 #if os(OSX)
-// Mouse-based event handling
 extension GameScene {
-
-    override func mouseDown(with event: NSEvent) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
+    override func keyDown(with event: NSEvent) {
+        switch event.keyCode {
+        case 0x08: emu.setAwaiting(.cycle)   // 'C' key
+        case 0x09: emu.setAwaiting(.vblank)  // 'V' key
+        case 0x03: emu.setAwaiting(.frame)   // 'F' key
+        case 0x23: emu.setAwaiting(.powerup) // 'P' key
+        case 0x2D: emu.setAwaiting(.nmi)     // 'N' key
+        case 0x31:                           // Spacebar (Toggle Run/Pause)
+            if emu.eventAwaiting == .none {
+                emu.setAwaiting(.cycle)
+            } else {
+                emu.setAwaiting(.none)
+            }
+        default: break
         }
-        self.makeSpinny(at: event.location(in: self), color: SKColor.green)
     }
-    
-    override func mouseDragged(with event: NSEvent) {
-        self.makeSpinny(at: event.location(in: self), color: SKColor.blue)
-    }
-    
-    override func mouseUp(with event: NSEvent) {
-        self.makeSpinny(at: event.location(in: self), color: SKColor.red)
-    }
-
 }
 #endif
-

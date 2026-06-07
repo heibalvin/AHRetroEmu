@@ -1,0 +1,4 @@
+# NES ROM files
+# All .nes files are ignored by git
+# Keep .gitkeep to preserve the folder in git
+# Keep this .gitignore

@@ -1,7 +1,36 @@
 import Foundation
 
+func log(_ message: @autoclosure () -> String) {
+    #if DEBUG
+    print(message())
+    #endif
+}
+
+extension UInt16 {
+    func hex() -> String {
+        String(format: "%04X", self)
+    }
+}
+
 extension UInt8 {
 
+    func hex() -> String {
+        String(format: "%02X", self)
+    }
+    
+    func bin(_ mask: String) -> String {
+        var str = ""
+        let chars: [Character] = Array(mask)
+        for id in 0...7 {
+            if (self & (1 << (7 - id))) != 0 {
+                str += "\(chars[id])"
+            } else {
+                str += "."
+            }
+        }
+        return str
+    }
+    
 	mutating func set(pos: Int, state: Bool) {
         if state {
             self |= 1 << pos

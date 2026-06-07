@@ -8,23 +8,18 @@ class NESCOM {
     }
     
     func powerOn() {
-        // To be implemented
     }
     
     func powerOff() {
-        // To be implemented
     }
     
     func reset() {
-        // To be implemented
     }
 
     func read(_ addr: UInt16) -> UInt8 {
-        // To be implemented
         return 0x00
     }
 
     func write(_ addr: UInt16, _ value: UInt8) {
-        // To be implemented
     }
 }

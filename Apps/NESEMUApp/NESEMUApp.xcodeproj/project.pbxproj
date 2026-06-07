@@ -6,18 +6,51 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3914363E2FD2CE6300A128AB /* .gitkeep in Resources */ = {isa = PBXBuildFile; fileRef = 3914363B2FD2CE6300A128AB /* .gitkeep */; };
+		3914363F2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */ = {isa = PBXBuildFile; fileRef = 3914363C2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes */; };
+		391436402FD2CE6300A128AB /* .gitkeep in Resources */ = {isa = PBXBuildFile; fileRef = 3914363B2FD2CE6300A128AB /* .gitkeep */; };
+		391436412FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */ = {isa = PBXBuildFile; fileRef = 3914363C2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes */; };
+		39685CA12FD3FB39001044A9 /* NESEMU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9D2FD3FB39001044A9 /* NESEMU.swift */; };
+		39685CA22FD3FB39001044A9 /* NESCOM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C992FD3FB39001044A9 /* NESCOM.swift */; };
+		39685CA32FD3FB39001044A9 /* NESBUS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C982FD3FB39001044A9 /* NESBUS.swift */; };
+		39685CA42FD3FB39001044A9 /* NESPPU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9F2FD3FB39001044A9 /* NESPPU.swift */; };
+		39685CA52FD3FB39001044A9 /* NESDSK.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9C2FD3FB39001044A9 /* NESDSK.swift */; };
+		39685CA62FD3FB39001044A9 /* NESCPU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9B2FD3FB39001044A9 /* NESCPU.swift */; };
+		39685CA72FD3FB39001044A9 /* NESKEY.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9E2FD3FB39001044A9 /* NESKEY.swift */; };
+		39685CA82FD3FB39001044A9 /* NESCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9A2FD3FB39001044A9 /* NESCommon.swift */; };
+		39685CA92FD3FB39001044A9 /* NESEMU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9D2FD3FB39001044A9 /* NESEMU.swift */; };
+		39685CAA2FD3FB39001044A9 /* NESCOM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C992FD3FB39001044A9 /* NESCOM.swift */; };
+		39685CAB2FD3FB39001044A9 /* NESBUS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C982FD3FB39001044A9 /* NESBUS.swift */; };
+		39685CAC2FD3FB39001044A9 /* NESPPU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9F2FD3FB39001044A9 /* NESPPU.swift */; };
+		39685CAD2FD3FB39001044A9 /* NESDSK.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9C2FD3FB39001044A9 /* NESDSK.swift */; };
+		39685CAE2FD3FB39001044A9 /* NESCPU.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9B2FD3FB39001044A9 /* NESCPU.swift */; };
+		39685CAF2FD3FB39001044A9 /* NESKEY.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9E2FD3FB39001044A9 /* NESKEY.swift */; };
+		39685CB02FD3FB39001044A9 /* NESCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39685C9A2FD3FB39001044A9 /* NESCommon.swift */; };
+		39BF2E0A2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */; };
+		39BF2E0B2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
-		391435F32FD2CA2600A128AB /* NESEMUApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NESEMUApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		391436042FD2CA2600A128AB /* NESEMUApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NESEMUApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3914363B2FD2CE6300A128AB /* .gitkeep */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitkeep; sourceTree = "<group>"; };
+		3914363C2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cybernoid - The Fighting Machine (USA).nes"; sourceTree = "<group>"; };
+		39685C982FD3FB39001044A9 /* NESBUS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NESBUS.swift; sourceTree = "<group>"; };
+		39685C992FD3FB39001044A9 /* NESCOM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NESCOM.swift; sourceTree = "<group>"; };
+		39685C9A2FD3FB39001044A9 /* NESCommon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NESCommon.swift; sourceTree = "<group>"; };
+		39685C9B2FD3FB39001044A9 /* NESCPU.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NESCPU.swift; sourceTree = "<group>"; };
+		39685C9C2FD3FB39001044A9 /* NESDSK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NESDSK.swift; sourceTree = "<group>"; };
+		39685C9D2FD3FB39001044A9 /* NESEMU.swift */ = {isa = PBXFileReference; indentWidth = 3; lastKnownFileType = sourcecode.swift; path = NESEMU.swift; sourceTree = "<group>"; };
+		39685C9E2FD3FB39001044A9 /* NESKEY.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NESKEY.swift; sourceTree = "<group>"; };
+		39685C9F2FD3FB39001044A9 /* NESPPU.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NESPPU.swift; sourceTree = "<group>"; };
+		39BF2DF22FD4340B001B13AD /* NESEMUApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NESEMUApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		39BF2DF32FD4340B001B13AD /* NESEMUApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NESEMUApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Donkey Kong (World) (Rev A).nes"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		391436152FD2CA2600A128AB /* Exceptions for "NESEMUApp Shared" folder in "NESEMUApp iOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Actions.sks,
-				Assets.xcassets,
-				GameScene.sks,
 				GameScene.swift,
 			);
 			target = 391435F22FD2CA2600A128AB /* NESEMUApp iOS */;
@@ -32,9 +65,6 @@
 		3914361A2FD2CA2600A128AB /* Exceptions for "NESEMUApp Shared" folder in "NESEMUApp macOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Actions.sks,
-				Assets.xcassets,
-				GameScene.sks,
 				GameScene.swift,
 			);
 			target = 391436032FD2CA2600A128AB /* NESEMUApp macOS */;
@@ -87,21 +117,50 @@
 		391435E52FD2CA2500A128AB = {
 			isa = PBXGroup;
 			children = (
+				3914363D2FD2CE6300A128AB /* Roms */,
 				391435EA2FD2CA2500A128AB /* NESEMUApp Shared */,
 				391435F52FD2CA2600A128AB /* NESEMUApp iOS */,
 				391436052FD2CA2600A128AB /* NESEMUApp macOS */,
-				391435F42FD2CA2600A128AB /* Products */,
+				39685C952FD3312C001044A9 /* Frameworks */,
+				39685CA02FD3FB39001044A9 /* NESEMU */,
+				39BF2DF22FD4340B001B13AD /* NESEMUApp.app */,
+				39BF2DF32FD4340B001B13AD /* NESEMUApp.app */,
 			);
 			sourceTree = "<group>";
 		};
-		391435F42FD2CA2600A128AB /* Products */ = {
+		3914363D2FD2CE6300A128AB /* Roms */ = {
 			isa = PBXGroup;
 			children = (
-				391435F32FD2CA2600A128AB /* NESEMUApp.app */,
-				391436042FD2CA2600A128AB /* NESEMUApp.app */,
+				3914363B2FD2CE6300A128AB /* .gitkeep */,
+				39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */,
+				3914363C2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes */,
 			);
-			name = Products;
+			name = Roms;
+			path = /Users/heibalvin/Github/heibalvin/AHRetroEmu/Roms;
+			sourceTree = "<absolute>";
+		};
+		39685C952FD3312C001044A9 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
+		};
+		39685CA02FD3FB39001044A9 /* NESEMU */ = {
+			isa = PBXGroup;
+			children = (
+				39685C982FD3FB39001044A9 /* NESBUS.swift */,
+				39685C992FD3FB39001044A9 /* NESCOM.swift */,
+				39685C9A2FD3FB39001044A9 /* NESCommon.swift */,
+				39685C9B2FD3FB39001044A9 /* NESCPU.swift */,
+				39685C9C2FD3FB39001044A9 /* NESDSK.swift */,
+				39685C9D2FD3FB39001044A9 /* NESEMU.swift */,
+				39685C9E2FD3FB39001044A9 /* NESKEY.swift */,
+				39685C9F2FD3FB39001044A9 /* NESPPU.swift */,
+			);
+			name = NESEMU;
+			path = /Users/heibalvin/Github/heibalvin/AHRetroEmu/Source/NESEMU;
+			sourceTree = "<absolute>";
 		};
 /* End PBXGroup section */
 
@@ -125,7 +184,7 @@
 			packageProductDependencies = (
 			);
 			productName = "NESEMUApp iOS";
-			productReference = 391435F32FD2CA2600A128AB /* NESEMUApp.app */;
+			productReference = 39BF2DF22FD4340B001B13AD /* NESEMUApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 		391436032FD2CA2600A128AB /* NESEMUApp macOS */ = {
@@ -147,7 +206,7 @@
 			packageProductDependencies = (
 			);
 			productName = "NESEMUApp macOS";
-			productReference = 391436042FD2CA2600A128AB /* NESEMUApp.app */;
+			productReference = 39BF2DF32FD4340B001B13AD /* NESEMUApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -177,8 +236,10 @@
 			);
 			mainGroup = 391435E52FD2CA2500A128AB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 391435F42FD2CA2600A128AB /* Products */;
+			productRefGroup = 391435E52FD2CA2500A128AB;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -193,6 +254,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39BF2E0A2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */,
+				3914363E2FD2CE6300A128AB /* .gitkeep in Resources */,
+				3914363F2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -200,6 +264,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39BF2E0B2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */,
+				391436402FD2CE6300A128AB /* .gitkeep in Resources */,
+				391436412FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -210,6 +277,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39685CA92FD3FB39001044A9 /* NESEMU.swift in Sources */,
+				39685CAA2FD3FB39001044A9 /* NESCOM.swift in Sources */,
+				39685CAB2FD3FB39001044A9 /* NESBUS.swift in Sources */,
+				39685CAC2FD3FB39001044A9 /* NESPPU.swift in Sources */,
+				39685CAD2FD3FB39001044A9 /* NESDSK.swift in Sources */,
+				39685CAE2FD3FB39001044A9 /* NESCPU.swift in Sources */,
+				39685CAF2FD3FB39001044A9 /* NESKEY.swift in Sources */,
+				39685CB02FD3FB39001044A9 /* NESCommon.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,6 +292,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39685CA12FD3FB39001044A9 /* NESEMU.swift in Sources */,
+				39685CA22FD3FB39001044A9 /* NESCOM.swift in Sources */,
+				39685CA32FD3FB39001044A9 /* NESBUS.swift in Sources */,
+				39685CA42FD3FB39001044A9 /* NESPPU.swift in Sources */,
+				39685CA52FD3FB39001044A9 /* NESDSK.swift in Sources */,
+				39685CA62FD3FB39001044A9 /* NESCPU.swift in Sources */,
+				39685CA72FD3FB39001044A9 /* NESKEY.swift in Sources */,
+				39685CA82FD3FB39001044A9 /* NESCommon.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

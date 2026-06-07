@@ -1,0 +1,3 @@
+# Build artifacts - everything in this folder is generated and removed by make clean
+# Keep .gitkeep to preserve the folder in git
+# Keep this .gitignore
