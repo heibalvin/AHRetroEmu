@@ -314,13 +314,19 @@ class NESPPU: NESCOM {
     }
     
     private func fetchTileByte(isHighPlane: Bool) -> UInt8 {
+        // Bit 4 of PPUCTRL selects the background pattern table base ($0000 or $1000)
         let baseAddress: UInt16 = (REGISTER[PPUCTRL] & 0x10) != 0 ? 0x1000 : 0x0000
-        let fineY = (V >> 12) & 0x07
-        var address = baseAddress + (UInt16(bgNextNameTable) * 16) + fineY
         
-        if isHighPlane {
-            address += 8
-        }
+        // Fine Y scroll represents the exact row offset (0-7) within the 8x8 tile
+        let fineY = (V >> 12) & 0x07
+        
+        // Each tile takes up 16 bytes of data. 
+        // Shift the tile ID left by 4 (multiply by 16) and isolate the plane offset.
+        let tileOffset = UInt16(bgNextNameTable) << 4
+        let planeOffset: UInt16 = isHighPlane ? 8 : 0
+        
+        let address = baseAddress + tileOffset + fineY + planeOffset
+        
         return ppuRead(address)
     }
     
