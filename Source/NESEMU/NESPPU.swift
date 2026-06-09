@@ -270,15 +270,15 @@ class NESPPU: NESCOM {
     }
     
     func processVisibleScanline() {
-        if (cycle == 0) && (scanline == 0) {
-            let id = Int(REGISTER[PPUCTRL & 0x03])
-            let nametable = extractNametable(id)
-            let attributetable = extractAttributeTable(id)
-            let palettetable = extractPaletteTable()
-            log(dumpGrid(data: nametable, label: "NameTable"))
-            log(dumpGrid(data: attributetable, label: "AttributeTable"))
-            log(dumpGrid(data: palettetable, label: "PaletteTable"))
-        }
+//        if (cycle == 0) && (scanline == 0) {
+//            let id = Int(REGISTER[PPUCTRL & 0x03])
+//            let nametable = extractNametable(id)
+//            let attributetable = extractAttributeTable(id)
+//            let palettetable = extractPaletteTable()
+//            log(dumpGrid(data: nametable, label: "NameTable"))
+//            log(dumpGrid(data: attributetable, label: "AttributeTable"))
+//            log(dumpGrid(data: palettetable, label: "PaletteTable"))
+//        }
         
         if cycle >= 1 && cycle <= 256 {
             renderPixel()
@@ -311,18 +311,18 @@ class NESPPU: NESCOM {
             updateHorizontalScrollValues()
         }
         
-        if scanline == 64 && cycle % 8 == 0 {
-            print(String(format: "SL: %3d | CYC: %3d | V: 0x%04X | T: 0x%04X | NT_ID: 0x%02X | TileL: 0x%02X | TileH: 0x%02X | W: %d",
-                         scanline,
-                         cycle,
-                         V,
-                         T,
-                         bgNextNameTable,
-                         bgNextTileLow,
-                         bgNextTileHigh,
-                         W
-                        ))
-        }
+//        if scanline == 64 && cycle % 8 == 0 {
+//            print(String(format: "SL: %3d | CYC: %3d | V: 0x%04X | T: 0x%04X | NT_ID: 0x%02X | TileL: 0x%02X | TileH: 0x%02X | W: %d",
+//                         scanline,
+//                         cycle,
+//                         V,
+//                         T,
+//                         bgNextNameTable,
+//                         bgNextTileLow,
+//                         bgNextTileHigh,
+//                         W
+//                        ))
+//        }
     }
     
     private func loadNextBackgroundTile() {

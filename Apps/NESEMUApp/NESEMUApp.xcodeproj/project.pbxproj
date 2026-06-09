@@ -33,6 +33,16 @@
 		39BF2E0E2FD5D00D001B13AD /* cpu_dummy_reads.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E0C2FD5D00D001B13AD /* cpu_dummy_reads.nes */; };
 		39BF2E102FD5D864001B13AD /* nestest.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E0F2FD5D864001B13AD /* nestest.nes */; };
 		39BF2E112FD5D864001B13AD /* nestest.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E0F2FD5D864001B13AD /* nestest.nes */; };
+		39BF2E132FD5DB5A001B13AD /* Arkanoid (USA).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E122FD5DB5A001B13AD /* Arkanoid (USA).nes */; };
+		39BF2E142FD5DB5A001B13AD /* Arkanoid (USA).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E122FD5DB5A001B13AD /* Arkanoid (USA).nes */; };
+		39BF2E172FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E152FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes */; };
+		39BF2E182FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E162FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes */; };
+		39BF2E192FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E152FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes */; };
+		39BF2E1A2FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E162FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes */; };
+		39BF2E1C2FD6993A001B13AD /* Excitebike (Japan, USA).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E1B2FD6993A001B13AD /* Excitebike (Japan, USA).nes */; };
+		39BF2E1D2FD6993A001B13AD /* Excitebike (Japan, USA).nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E1B2FD6993A001B13AD /* Excitebike (Japan, USA).nes */; };
+		39BF2E1F2FD6A130001B13AD /* ppu_vbl_nmi.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E1E2FD6A130001B13AD /* ppu_vbl_nmi.nes */; };
+		39BF2E202FD6A130001B13AD /* ppu_vbl_nmi.nes in Resources */ = {isa = PBXBuildFile; fileRef = 39BF2E1E2FD6A130001B13AD /* ppu_vbl_nmi.nes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -51,6 +61,11 @@
 		39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Donkey Kong (World) (Rev A).nes"; sourceTree = "<group>"; };
 		39BF2E0C2FD5D00D001B13AD /* cpu_dummy_reads.nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = cpu_dummy_reads.nes; sourceTree = "<group>"; };
 		39BF2E0F2FD5D864001B13AD /* nestest.nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = nestest.nes; sourceTree = "<group>"; };
+		39BF2E122FD5DB5A001B13AD /* Arkanoid (USA).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Arkanoid (USA).nes"; sourceTree = "<group>"; };
+		39BF2E152FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Legend of Zelda, The (USA) (Rev 1).nes"; sourceTree = "<group>"; };
+		39BF2E162FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Tetris (USA) (Tengen) (Unl).nes"; sourceTree = "<group>"; };
+		39BF2E1B2FD6993A001B13AD /* Excitebike (Japan, USA).nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Excitebike (Japan, USA).nes"; sourceTree = "<group>"; };
+		39BF2E1E2FD6A130001B13AD /* ppu_vbl_nmi.nes */ = {isa = PBXFileReference; lastKnownFileType = file; path = ppu_vbl_nmi.nes; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -139,8 +154,13 @@
 			children = (
 				39BF2E0C2FD5D00D001B13AD /* cpu_dummy_reads.nes */,
 				3914363B2FD2CE6300A128AB /* .gitkeep */,
+				39BF2E152FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes */,
+				39BF2E162FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes */,
 				39BF2E092FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes */,
+				39BF2E1B2FD6993A001B13AD /* Excitebike (Japan, USA).nes */,
 				39BF2E0F2FD5D864001B13AD /* nestest.nes */,
+				39BF2E1E2FD6A130001B13AD /* ppu_vbl_nmi.nes */,
+				39BF2E122FD5DB5A001B13AD /* Arkanoid (USA).nes */,
 				3914363C2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes */,
 			);
 			name = Roms;
@@ -262,10 +282,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39BF2E202FD6A130001B13AD /* ppu_vbl_nmi.nes in Resources */,
 				39BF2E0A2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */,
 				39BF2E0E2FD5D00D001B13AD /* cpu_dummy_reads.nes in Resources */,
 				3914363E2FD2CE6300A128AB /* .gitkeep in Resources */,
 				3914363F2FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */,
+				39BF2E142FD5DB5A001B13AD /* Arkanoid (USA).nes in Resources */,
+				39BF2E192FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes in Resources */,
+				39BF2E1A2FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes in Resources */,
+				39BF2E1C2FD6993A001B13AD /* Excitebike (Japan, USA).nes in Resources */,
 				39BF2E112FD5D864001B13AD /* nestest.nes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -274,10 +299,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				39BF2E1F2FD6A130001B13AD /* ppu_vbl_nmi.nes in Resources */,
 				39BF2E0B2FD448DE001B13AD /* Donkey Kong (World) (Rev A).nes in Resources */,
 				39BF2E0D2FD5D00D001B13AD /* cpu_dummy_reads.nes in Resources */,
 				391436402FD2CE6300A128AB /* .gitkeep in Resources */,
 				391436412FD2CE6300A128AB /* Cybernoid - The Fighting Machine (USA).nes in Resources */,
+				39BF2E132FD5DB5A001B13AD /* Arkanoid (USA).nes in Resources */,
+				39BF2E172FD698CD001B13AD /* Legend of Zelda, The (USA) (Rev 1).nes in Resources */,
+				39BF2E182FD698CD001B13AD /* Tetris (USA) (Tengen) (Unl).nes in Resources */,
+				39BF2E1D2FD6993A001B13AD /* Excitebike (Japan, USA).nes in Resources */,
 				39BF2E102FD5D864001B13AD /* nestest.nes in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

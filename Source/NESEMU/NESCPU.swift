@@ -313,13 +313,6 @@ class NESCPU: NESCOM {
             waitCycle -= 1
             return
         }
-
-        // Temporary debug print inside your CPU step loop
-        if PC == 0xC291 {
-            print("--- NESTEST FAILURE DETECTED ---")
-            print(String(format: "RAM $0002 (Result Code): 0x%02X", WRAM[0x0002]))
-            print(String(format: "RAM $0003 (Error Code):  0x%02X", WRAM[0x0003]))
-        }
             
         fetch()
         decode()
@@ -328,6 +321,8 @@ class NESCPU: NESCOM {
         
     // Inside NESCPU.swift
     func NMI() {
+        emu.setEvent(.nmi)
+        
         // 1. Clear the trigger immediately so RTI doesn't loop back here
         self.isNMIInterrupt = false 
         
@@ -383,17 +378,23 @@ class NESCPU: NESCOM {
             }
         }
         
-        log(register + " | " + instructions + " | " + assembler)
+//        log(register + " | " + instructions + " | " + assembler)
     }
 
     func execute() {
-        if let opcode = opcode {
-            nextPC = PC + UInt16(opcode.len)
+        guard let opcode = opcode else {
+            nextPC = PC + 1
+            waitCycle = 0
+            PC = nextPC
+            return
+        }
+
+        nextPC = PC + UInt16(opcode.len)
             
-            // Arm the base cycle timing before executing the instruction handler
-            waitCycle = opcode.tim
+        // Arm the base cycle timing before executing the instruction handler
+        waitCycle = opcode.tim
             
-            switch opcode.opc {
+        switch opcode.opc {
             // --- ADC ---
             case 0x69, 0x65, 0x75, 0x6D, 0x7D, 0x79, 0x61, 0x71: ADC(); break
                 
@@ -517,10 +518,6 @@ class NESCPU: NESCOM {
                 print(String(format: "NESCPU Error: Unhandled Opcode [0x%02X] at PC: 0x%04X", opcode.opc, PC))
                 emu.setAwaiting(.cycle)
                 break
-            }
-        } else {
-            nextPC = PC + 1
-            waitCycle = 0
         }
         
         PC = nextPC
@@ -537,10 +534,10 @@ class NESCPU: NESCOM {
             return UInt16(bytes[1])
             
         case .zero_page_indexed_X:
-            return UInt16((bytes[1] &+ X))
+            return UInt16(bytes[1] &+ X) & 0x00FF
             
         case .zero_page_indexed_Y:
-            return UInt16((bytes[1] &+ Y))
+            return UInt16(bytes[1] &+ Y) & 0x00FF
             
         case .absolute:
             return (UInt16(bytes[2]) << 8) | UInt16(bytes[1])
@@ -566,14 +563,14 @@ class NESCPU: NESCOM {
             return PC + 2
             
         case .indirect:
-            let lowPointer = (UInt16(bytes[2]) << 8) | UInt16(bytes[1])
-            let lowTarget = emu.bus.read(lowPointer)
+            let lowAddr = (UInt16(bytes[2]) << 8) | UInt16(bytes[1])
+            let lowBase = emu.bus.read(lowAddr)
                 
             // If lowPointer is XXFF, high byte is fetched from XX00 due to hardware bug
-            let highPointer = (lowPointer & 0x00FF) == 0x00FF ? (lowPointer & 0xFF00) : (lowPointer + 1)
-            let highTarget = emu.bus.read(highPointer)
+            let highAddr = (lowAddr & 0x00FF) == 0x00FF ? (lowAddr & 0xFF00) : (lowAddr + 1)
+            let highBase = emu.bus.read(highAddr)
                 
-            return (UInt16(highTarget) << 8) | UInt16(lowTarget)
+            return (UInt16(highBase) << 8) | UInt16(lowBase)
             
         case .indexed_indirect:
             let zeroAddress = bytes[1] &+ X
@@ -899,7 +896,7 @@ class NESCPU: NESCOM {
         
         // Crucial: Keep bits 4 & 5 isolated; only restore real processor flags (NV-BDIZC)
         // Bit 4 (Break) is ignored on pull, Bit 5 is always 1 on NES.
-        self.P = (pulledStatus & 0xEF) | 0x20
+        P = (pulledStatus & 0x10) | 0x20
 
         SP = SP &+ 1
         let low = emu.bus.read(0x0100 + UInt16(SP))

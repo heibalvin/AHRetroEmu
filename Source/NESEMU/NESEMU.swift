@@ -56,46 +56,74 @@ class NESEMU {
    }
     
    func update(_ deltaTime: TimeInterval) {
-      // --- STEP 1: EMBARGO EXTRA TIME SLICES IF ALREADY SITTING ON TARGET EVENT ---
-      // If an explicit debug milestone is requested and has been hit, we lock
-          // execution down. We do NOT run any steps, and we do NOT accumulate time.
-          if eventAwaiting != .none && eventLast == eventAwaiting {
-              return
-          }
+        // --- STEP 1: EMBARGO EXTRA TIME SLICES IF ALREADY SITTING ON TARGET EVENT ---
+        // If an explicit debug milestone is requested and has been hit, we lock
+        // execution down. We do NOT run any steps, and we do NOT accumulate time.
+        if eventAwaiting != .none && eventLast == eventAwaiting {
+            return
+        }
                   
-          // --- STEP 2: MANUAL STEP MODE ---
-          if eventAwaiting == .cycle {
-              eventLast = .cycle
-              step()
-              return
-          }
+        // --- STEP 2: MANUAL STEP MODE ---
+        if eventAwaiting == .cycle {
+            eventLast = .cycle
+            step()
+            return
+        }
           
-          // --- STEP 3: REAL-TIME TIMING INGESTION ---
-          timeAccumulator += deltaTime
-          let stepsToRun = Int(timeAccumulator / cpuClockInterval)
-          timeAccumulator -= Double(stepsToRun) * cpuClockInterval
+        // --- STEP 3: REAL-TIME TIMING INGESTION ---
+        timeAccumulator += deltaTime
+        let stepsToRun = Int(timeAccumulator / cpuClockInterval)
+        timeAccumulator -= Double(stepsToRun) * cpuClockInterval
               
-          // --- STEP 4: FLAT ENGINE EXECUTION LOOP ---
-          for _ in 0..<stepsToRun {
-              step()
+        // --- STEP 4: FLAT ENGINE EXECUTION LOOP ---
+        for _ in 0..<stepsToRun {
+            step()
               
-              // Event Interceptor: Catch the event inside the time slice slice window.
-              if eventAwaiting != .none && eventLast == eventAwaiting {
-                  // Completely wipe the remainder budget pool so that when we resume
-                  // later, we start fresh without an instant multi-frame overflow skip.
-                  timeAccumulator = 0
-                  break
-              }
-          }
-   }
+            // Event Interceptor: Catch the event inside the time slice slice window.
+            if eventAwaiting != .none && eventLast == eventAwaiting {
+                // Completely wipe the remainder budget pool so that when we resume
+                // later, we start fresh without an instant multi-frame overflow skip.
+                timeAccumulator = 0
+                break
+            }
+        }
+    }
     
    func step() {
-        cpu.step()
+      // Temporary debug diagnostic inside your PPU or Main Step Loop
+      if cpu.PC == 0xEDD0 {
+          print("--- PPU_VBL_NMI NAMETABLE STRING DUMP ---")
+          
+          // Read the visible text rows of Nametable 0 (0x2000 - 0x23C0)
+          for row in 0..<30 {
+              var rowString = ""
+              for col in 0..<32 {
+                  let vramAddr = 0x2000 + UInt16(row * 32 + col)
+                 let tileIdx = ppu.read(vramAddr) // Read the byte from your PPU VRAM layout
+                  
+                  // Convert standard NES text characters to readable console ASCII
+                  if tileIdx >= 32 && tileIdx <= 126 {
+                      rowString.append(Character(UnicodeScalar(tileIdx)))
+                  } else if tileIdx == 0x00 || tileIdx == 0xFF {
+                      rowString.append(" ") // Clear spaces
+                  } else {
+                      rowString.append(".") // Unprintable background tiles
+                  }
+              }
+              // Print rows that actually contain text characters
+              if !rowString.trimmingCharacters(in: .whitespaces).isEmpty {
+                  print("Row \(row): [\(rowString)]")
+              }
+          }
+         setEvent(.cycle)
+      }
+      
+      cpu.step()
         
-        ppu.step()
-        ppu.step()
-        ppu.step()
-    }
+      ppu.step()
+      ppu.step()
+      ppu.step()
+   }
     
     func setAwaiting(_ event: NESEMUEvent) {
         eventAwaiting = event
